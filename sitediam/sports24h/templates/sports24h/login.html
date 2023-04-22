@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+	<title>Login</title>
+	{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <form id="login" action="{% url 'sports24h:login_utilizador' %}" method="post">
+        {% csrf_token %}
+        <h1>Introduza os seus dados para efetuar o login: </h1>
+        <p></p>
+        <label> Nome de utilizador:</label>
+        <input type="text" name="username" value="" >
+        <label> Password:</label>
+        <input type="password" name="password" value="">
+        <p></p>
+    </form>
+    <form id="registo" action="{% url 'votacao:registautilizador' %}" >
+        {% csrf_token %}
+    </form>
+    {% endblock %}
+</body>
+</html>

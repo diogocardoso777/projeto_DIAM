@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	{% block title %}
+	<title>Online Clothing Shop</title>
+	{% endblock %}
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% load static %}
+	<link rel="stylesheet" type="text/css" href="{% static 'sports24h/styles.css' %}" />
+</head>
+<body>
+	{% block header %}
+	<header>
+        <div class="top">
+		    <h1>Sports24h</h1>
+			<input type="text" placeholder="Search..">
+            <div class="user-info">
+				<img href="#" src="{% static 'sports24h/images/shopping-cart.png' %}" alt="Profile Photo">
+                <img src="profile-photo.jpg" alt="Profile Photo">
+                <a href="#" class="username">JohnDoe</a>
+            </div>
+        </div>
+		<nav>
+			<ul>
+				<li><a href="#">Home</a></li>
+				<li><a href="#">Forums</a></li>
+				<li><a href="#">Products</a></li>
+				<li><a href="#">About</a></li>
+			</ul>
+		</nav>
+	</header>
+	{% endblock %}
+
+	{% block content %}
+	<main>
+		<section>
+			<h2>Latest Posts</h2>
+			<div class="post">
+				<h3>User Post Title</h3>
+				<p>Here's the user-generated post content. It might include text, images, and links to products for sale.</p>
+				<a href="#">Buy This Product</a>
+			</div>
+			<div class="post">
+				<h3>Another User Post Title</h3>
+				<p>Here's another user-generated post content. This one includes a different product for sale.</p>
+				<a href="#">Buy This Product</a>
+			</div>
+			<!-- more user-generated posts -->
+		</section>
+
+		<section>
+			<h2>Featured Products</h2>
+			<div class="product">
+				<h3>Product Name</h3>
+				<img src="product-image.jpg" alt="Product Name">
+				<p>Product description goes here. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+				<a href="#">Buy Now</a>
+			</div>
+			<div class="product">
+				<h3>Another Product Name</h3>
+				<img src="product-image.jpg" alt="Another Product Name">
+				<p>Another product description goes here. Nulla nec nisi id augue varius placerat.</p>
+				<a href="#">Buy Now</a>
+			</div>
+			<!-- more featured products -->
+		</section>
+	</main>
+	{% endblock %}
+
+	{% block footer %}
+	<footer>
+		<p>&copy; 2023 Online Clothing Shop</p>
+	</footer>
+	{% endblock %}
+</body>
+</html>
