@@ -26,6 +26,14 @@ urlpatterns = [
     # upload photo
     path('upload_photo', views.upload_photo, name='upload_photo'),
 
+    # set country
+    path('set_country', views.set_country, name='set_country'),
+
+    # set favoriteTeam
+    path('set_favoriteTeam', views.set_favoriteTeam, name='set_favoriteTeam'),
+
+    # set favoriteSport
+    path('set_favoriteSport', views.set_favoriteSport, name='set_favoriteSport'),
     # reset foto
     path('reset_foto', views.reset_foto, name='reset_foto'),
 

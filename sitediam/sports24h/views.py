@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 
@@ -14,7 +14,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 
-from .models import Post, Forum, Client, Seller
+from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 
 def index(request):
@@ -157,6 +157,64 @@ def logout_user(request):
 def profile(request):
     if not request.method == 'POST':
         return render(request, 'sports24h/profile.html')
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def set_country(request):
+    if request.method == 'POST':
+        country = request.POST.get('country')
+        c = Client.objects.get(user=request.user)
+        if country:
+            country, created = Country.objects.get_or_create(name=country)
+            c.country = country
+            c.save()
+            request.user = c
+            return render(request, 'sports24h/profile.html',
+                          {'set_profile_setting': "Profile changed successfully"})
+    return render(request, 'sports24h/profile.html',
+                  {'set_profile_setting': "Error trying to change the profile"})
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def set_favoriteTeam(request):
+    if request.method == 'POST':
+        teamCountry = request.POST.get('teamCountry')
+        teamName = request.POST.get('teamName')
+        c = Client.objects.get(user=request.user)
+        if teamCountry and teamName:
+            country, created = Country.objects.get_or_create(name=teamCountry)
+            if created:
+                country.save()
+            team, created = Team.objects.get_or_create(name=teamName, country=country)
+            if created:
+                team.save()
+            c.favorite_team = team
+            c.save()
+            request.user = c
+            return render(request, 'sports24h/profile.html',
+                          {'set_profile_setting': "Profile changed successfully"})
+
+    return render(request, 'sports24h/profile.html',
+                  {'set_profile_setting': "Error trying to change the profile"})
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def set_favoriteSport(request):
+    if request.method == 'POST':
+        sportName = request.POST.get('sportName')
+        c = Client.objects.get(user=request.user)
+        if sportName:
+            sport, created = Sport.objects.get_or_create(name=sportName)
+            if created:
+                sport.save()
+            c.favorite_sport = sport
+            c.save()
+            request.user = c
+            return render(request, 'sports24h/profile.html',
+                          {'set_profile_setting': "Profile changed successfully"})
+
+    return render(request, 'sports24h/profile.html',
+                  {'set_profile_setting': "Error trying to change the profile"})
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))

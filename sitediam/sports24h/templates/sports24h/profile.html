@@ -11,6 +11,95 @@
     <p> E-mail : {{request.user.email}} </p>
     <p> Data de registo : {{request.user.date_joined}} </p>
     <p> Curso : {{ request.session.curso }}</p>
+<div class="side-by-side">
+    {% if request.user.country.name %}
+    <p>País :   {{request.user.country.name}}</p>
+    <form method="post"  action="{% url 'sports24h:set_country' %}">
+        {% csrf_token %}
+        <button type="button" class= "addToProfile" onclick="showInputCountry()">Mudar Pais</button>
+        <div class="country-input" style="display:none">
+            <input type="text" name="country">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+{% else %}
+    <form method="post"  action="{% url 'sports24h:set_country' %}">
+        {% csrf_token %}
+        <button type="button" class= "addToProfile" onclick="showInputCountry()">Adicionar Pais</button>
+        <div class="country-input" style="display:none">
+            <input type="text" name="country">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+{% endif %}
+
+<script>
+function showInputCountry() {
+    document.getElementsByClassName("country-input")[0].style.display = "block";
+}
+</script>
+ {% if request.user.favorite_team %}
+    <p>Equipa Favorita :   {{request.user.favorite_team.name}}</p>
+    <p>Pais da Equipa Favorita :   {{request.user.favorite_team.country.name}}</p>
+    <form method="post" action="{% url 'sports24h:set_favoriteTeam' %}">
+        {% csrf_token %}
+        <button type="button" class="addToProfile" onclick="showInputFavoriteTeam()">Mudar Equipa Favorita</button>
+        <div class="favorite_team-input" style="display:none">
+            <label for="teamCountry">Pais Da Equipa:</label>
+            <input type="text" name="teamCountry" id="teamCountry2">
+            <label for="teamName">Nome Da Equipa:</label>
+            <input type="text" name="teamName" id="teamName2">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+{% else %}
+    <form method="post" action="{% url 'sports24h:set_favoriteTeam' %}">
+        {% csrf_token %}
+        <button type="button" class="addToProfile" onclick="showInputFavoriteTeam()">Adicionar Equipa Favorita</button>
+        <div class="favorite_team-input" style="display:none">
+            <label for="teamCountry">Pais Da Equipa:</label>
+            <input type="text" name="teamCountry" id="teamCountry">
+            <label for="teamName">Nome Da Equipa:</label>
+            <input type="text" name="teamName" id="teamName">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+{% endif %}
+
+<script>
+function showInputFavoriteTeam() {
+    document.getElementsByClassName("favorite_team-input")[0].style.display = "block";
+}
+</script>
+ {% if request.user.favorite_sport %}
+    <p>Desporto Favorita :   {{request.user.favorite_sport.name}}</p>
+    <form method="post" action="{% url 'sports24h:set_favoriteSport' %}" >
+        {% csrf_token %}
+        <button type="button" class="addToProfile" onclick="showInputFavoriteSport()">Mudar Desporto Favorita</button>
+        <div class="favorite_sport-input" style="display:none">
+            <input type="text" name="sportName">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+{% else %}
+    <form method="post" action="{% url 'sports24h:set_favoriteSport' %}" >
+        {% csrf_token %}
+        <button type="button" class="addToProfile" onclick="showInputFavoriteSport()">Adicionar Desporto Favorita</button>
+        <div class="favorite_sport-input" style="display:none">
+            <input type="text" name="sportName">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+{% endif %}
+
+<script>
+function showInputFavoriteSport() {
+    document.getElementsByClassName("favorite_sport-input")[0].style.display = "block";
+}
+</script>
+    </div>
+<p><strong>{{ set_profile_setting }}</strong></p>
+
     <form id="upload" method="post" enctype="multipart/form-data"  action="{% url 'sports24h:upload_photo' %}">
     {% csrf_token %}
 
@@ -31,7 +120,6 @@
 <p></p>
     <input type="submit" value="Remover foto" form="reset">
 {% endblock %}
-
 {% block error_messages %}
     {% if error_message %}
     <p><strong>{{ error_message }}</strong></p>
