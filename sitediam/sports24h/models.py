@@ -131,3 +131,12 @@ class Review(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     created_at = models.DateTimeField(default=datetime.now)
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username} -> {self.receiver.username}: {self.content[:50]}"

@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
 from django.shortcuts import render, redirect
+from django.contrib import messages
+
 
 # Create your views here.
 
@@ -44,6 +46,7 @@ def forums_index(request):
         'forum_list': forum_list,
     }
     return render(request, 'sports24h/forums_index.html', context)
+
 
 
 def forum(request):
@@ -270,3 +273,25 @@ def shopping_cart(request):
 #             return False
 #
 #     return True
+
+def send_message(request):
+    return render(request, 'sports24h/send_message.html')
+
+def create_message(request):
+    if request.method == 'POST':
+        receiver_username = request.POST['receiver']
+        content = request.POST['content']
+
+        try:
+            receiver = User.objects.get(username=receiver_username)
+            message = Message(sender=request.user, receiver=receiver, content=content)
+            message.save()
+            return redirect('create_message')
+        except User.DoesNotExist:
+            error_message = "User not found"
+            return render(request, 'sports24h/send_messages.html', {'error_message': error_message})
+
+    return render(request, 'sports24h/send_messages.html')
+
+def send_message(request):
+    return render(request, 'sports24h/send_messages.html')
