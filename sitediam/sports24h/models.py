@@ -30,9 +30,9 @@ class Forum(models.Model):
 class Client(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     birthdate = models.DateField()
-    country = models.ForeignKey("Country", on_delete=models.CASCADE)
-    favorite_team = models.ForeignKey("Team", on_delete=models.CASCADE)
-    favorite_sport = models.ForeignKey("Sport", on_delete=models.CASCADE)
+    country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
+    favorite_team = models.ForeignKey("Team", on_delete=models.CASCADE, null=True)
+    favorite_sport = models.ForeignKey("Sport", on_delete=models.CASCADE, null=True)
     nr_commented_posts = models.IntegerField(default=0)
     nr_liked_posts = models.IntegerField(default=0)
     verified = models.BooleanField(default=False)
@@ -42,7 +42,7 @@ class Client(models.Model):
 class Seller(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     birthdate = models.DateField()
-    country = models.ForeignKey("Country", on_delete=models.CASCADE)
+    country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
     nr_published_posts = models.IntegerField(default=0)
     nr_received_likes = models.IntegerField(default=0)
     verified = models.BooleanField(default=False)
@@ -51,13 +51,13 @@ class Seller(models.Model):
 class Moderator(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     birthdate = models.DateField()
-    country = models.ForeignKey("Country", on_delete=models.CASCADE)
+    country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
 
 
 class Follows(models.Model):
     following_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='follows')
     followed_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='followed')
-    created_at = models.DateTimeField(default=datetime.now, blank=True)
+    created_at = models.DateTimeField(default=datetime.now)
 
     class Meta:
         constraints = [
@@ -68,7 +68,7 @@ class Follows(models.Model):
 class FollowsForum(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     forum = models.ForeignKey("Forum", on_delete=models.CASCADE)
-    created_at = models.DateTimeField(default=datetime.now, blank=True)
+    created_at = models.DateTimeField(default=datetime.now)
 
     class Meta:
         constraints = [
@@ -97,7 +97,7 @@ class Message(models.Model):
 class Post(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
-    product = models.ForeignKey("Product", on_delete=models.CASCADE)
+    product = models.ForeignKey("Product", on_delete=models.CASCADE, null=True)
     forum = models.ForeignKey("Forum", on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)

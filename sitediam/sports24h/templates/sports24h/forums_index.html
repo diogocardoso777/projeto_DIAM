@@ -1,0 +1,31 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Forums</title>
+    {% endblock %}
+</head>
+<body>
+    {% block content %}
+    <main>
+		<section>
+			<div class="create_forum">
+				<a href="{% url 'sports24h:create_forum' %}">Create a new Forum</a>
+			</div>
+		</section>
+		<section>
+			<h2>Forums</h2>
+			{% for forum in forum_list %}
+			<div class="forum">
+				<h3>{{ forum.name }}</h3>
+				<h4>{{ forum.genre }}</h4>
+				<a href="#">Join forum</a>
+			</div>
+			{% endfor %}
+		</section>
+    </main>
+    {% endblock %}
+</body>
+</html>

@@ -12,6 +12,9 @@ body {
 	line-height: 1.5;
 	background-color: #f9f9f9;
 	color: #333;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
 }
 
 header {
@@ -73,23 +76,23 @@ h2 {
 	margin-bottom: 20px;
 }
 
-.post {
+.post, .forum{
 	background-color: #fff;
 	padding: 20px;
 	margin-bottom: 20px;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.post h3 {
+.post h3 , .forum h3{
 	font-size: 20px;
 	margin-bottom: 10px;
 }
 
-.post p {
+.post p, .forum p{
 	margin-bottom: 10px;
 }
 
-.post a {
+.post a, .forum a , .create_post a, .create_forum a {
 	display: inline-block;
 	padding: 10px 20px;
 	background-color: #f00;
@@ -99,7 +102,7 @@ h2 {
 	transition: all 0.3s ease;
 }
 
-.post a:hover {
+.post a:hover, .forum a:hover {
 	background-color: #fff;
 	color: #f00;
 }
@@ -145,7 +148,7 @@ footer {
 	color: #fff;
 	text-align: center;
 	padding: 20px;
-	margin-top: 20px;
+	margin-top: auto;
 }
 
 .user-info{
@@ -159,7 +162,18 @@ footer {
 	flex: 1;
 }
 
-img {
-	width: 20%;
+.shopping_cart {
+	margin-right: 10px;
+	width: 50px;
 	height: 70%;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+}
+
+input[type=submit] {
+	width: 30%;
+	align-self: center;
 }

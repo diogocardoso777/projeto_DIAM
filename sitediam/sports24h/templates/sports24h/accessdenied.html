@@ -1,0 +1,22 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Access Denied</title>
+    {% endblock %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'votacao/style.css' %}" />
+</head>
+<body>
+{% block content %}
+    <h1>Access Denied</h1>
+    <p>You do not have permission to access this page.</p>
+{% endblock %}
+{% block options_and_controls %}
+    <a href="{% url 'votacao:index' %}">Go to Homepage</a>
+{% endblock %}
+
+</body>
+</html>

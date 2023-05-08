@@ -16,15 +16,17 @@
 		    <h1>Sports24h</h1>
 			<input type="text" placeholder="Search..">
             <div class="user-info">
-				<img href="#" src="{% static 'sports24h/images/shopping-cart.png' %}" alt="Profile Photo">
+				<a href="{% url 'sports24h:shopping_cart' %}">
+  					<img class="shopping_cart" src="{% static 'sports24h/images/shopping-cart.png' %}" alt="Shopping Cart">
+				</a>
                 <img src="profile-photo.jpg" alt="Profile Photo">
-                <a href="#" class="username">JohnDoe</a>
+                <a href="{% url 'sports24h:profile' %}" class="username">JohnDoe</a>
             </div>
         </div>
 		<nav>
 			<ul>
-				<li><a href="#">Home</a></li>
-				<li><a href="#">Forums</a></li>
+				<li><a href="{% url 'sports24h:index' %}">Home</a></li>
+				<li><a href="{% url 'sports24h:forums_index' %}">Forums</a></li>
 				<li><a href="#">Products</a></li>
 				<li><a href="#">About</a></li>
 			</ul>
@@ -34,6 +36,11 @@
 
 	{% block content %}
 	<main>
+		<section>
+			<div class="create_post">
+				<a href="{% url 'sports24h:create_post' %}">Create a new Post</a>
+			</div>
+		</section>
 		<section>
 			<h2>Latest Posts</h2>
 			<div class="post">
@@ -46,6 +53,13 @@
 				<p>Here's another user-generated post content. This one includes a different product for sale.</p>
 				<a href="#">Buy This Product</a>
 			</div>
+			{% for post in post_list %}
+			<div class="post">
+				<h3> {{ post.title }}</h3>
+				<p>{{ post.text }}</p>
+				<a href="#">Buy This Product</a>
+			</div>
+			{% endfor %}
 			<!-- more user-generated posts -->
 		</section>
 
@@ -66,6 +80,12 @@
 			<!-- more featured products -->
 		</section>
 	</main>
+	{% endblock %}
+
+	{% block options_and_controls %}
+	{% endblock %}
+
+	{% block error_messages %}
 	{% endblock %}
 
 	{% block footer %}

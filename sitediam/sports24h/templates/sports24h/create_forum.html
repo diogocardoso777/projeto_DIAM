@@ -1,0 +1,28 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+	<title>Create Forum</title>
+	{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <form id="forum" class="forum" action="{% url 'sports24h:create_forum' %}" method="post">
+        {% csrf_token %}
+        <h2>Create new forum</h2>
+        <label>Name: </label>
+        <input type="text" name="forum_name" value="" >
+        <label> Genre:</label>
+        <input type="text" name="genre" value="">
+        <p></p>
+    </form>
+    {% endblock %}
+
+    {% block options_and_controls %}
+    <input type="submit" value="Submeter" form="forum"/>
+	{% endblock %}
+
+</body>
+</html>

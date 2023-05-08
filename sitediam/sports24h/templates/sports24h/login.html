@@ -1,3 +1,4 @@
+{% extends "sports24h/index.html" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,8 +8,9 @@
 	{% endblock %}
 </head>
 <body>
+
     {% block content %}
-    <form id="login" action="{% url 'sports24h:login_utilizador' %}" method="post">
+    <form id="login" action="{% url 'sports24h:login_user' %}" method="post">
         {% csrf_token %}
         <h1>Introduza os seus dados para efetuar o login: </h1>
         <p></p>
@@ -18,9 +20,14 @@
         <input type="password" name="password" value="">
         <p></p>
     </form>
-    <form id="registo" action="{% url 'votacao:registautilizador' %}" >
+    <form id="registo" action="{% url 'sports24h:register_user' %}" >
         {% csrf_token %}
     </form>
+    {% endblock %}
+    {% block options_and_controls %}
+    <input type="submit" value="Login" form="login"/>
+    <p>Ainda não possui uma conta registada?</p>
+    <input type="submit" value="Registar" form="registo">
     {% endblock %}
 </body>
 </html>

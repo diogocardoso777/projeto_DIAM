@@ -1,0 +1,41 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+</head>
+<body>
+{% block content %}
+    <p> Username : {{request.user.username}} </p>
+    <p> E-mail : {{request.user.email}} </p>
+    <p> Data de registo : {{request.user.date_joined}} </p>
+    <p> Curso : {{ request.session.curso }}</p>
+    <form id="upload" method="post" enctype="multipart/form-data"  action="{% url 'sports24h:upload_photo' %}">
+    {% csrf_token %}
+
+    <input type="file" name="myfile">
+        <p></p>
+    </form>
+        <form id="reset" action="{% url 'sports24h:reset_foto' %}">
+    {% csrf_token %}
+        <p></p>
+    </form>
+    {% if uploaded_file_status %}
+    <p><strong>{{ uploaded_file_status }}</strong></p>
+    {% endif %}
+{% endblock %}
+
+{% block options_and_controls %}
+    <input type="submit" value="Atualizar foto" form="upload">
+<p></p>
+    <input type="submit" value="Remover foto" form="reset">
+{% endblock %}
+
+{% block error_messages %}
+    {% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+{% endblock %}
+</body>
+</html>

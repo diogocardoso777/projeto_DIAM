@@ -1,0 +1,40 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+	<title>Register</title>
+	{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <form id="register" action="{% url 'sports24h:register_user' %}" method="post">
+        {% csrf_token %}
+        <h1>Introduza os seus dados para registo de utilizador: </h1>
+        <label for="user-type">Register as:</label>
+        <div id="user-type">
+            <input type="radio" name="user_type" value="client" id="client" checked>
+            <label for="client">Client</label>
+            <input type="radio" name="user_type" value="seller" id="seller">
+            <label for="seller">Seller</label>
+        </div>
+        <label> Username: </label>
+            <input type="text" name="username" value="" >
+        <label> E-mail: </label>
+            <input type="email" name="email" value="" >
+        <label> Password:</label>
+            <input type="password" name="password" value="" >
+        <label> Birthdate:</label>
+            <input type="date" name="birthdate" value="" >
+        {% csrf_token %}
+    </form>
+    {% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+    {% endblock %}
+    {% block options_and_controls %}
+    <input type="submit" value="Register" form="register"/>
+    {% endblock %}
+</body>
+</html>
