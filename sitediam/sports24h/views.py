@@ -8,6 +8,8 @@ from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from .models import Message
+
 
 
 # Create your views here.
@@ -277,7 +279,7 @@ def shopping_cart(request):
 def send_message_html(request):
     return render(request, 'sports24h/send_message.html')
 
-def send_message(request):
+def send_message_submit(request):
     if request.method == 'POST':
         recipient_username = request.POST['recipient']
         content = request.POST['message']
