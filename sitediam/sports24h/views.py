@@ -347,6 +347,13 @@ def send_message_html(request):
     return render(request, 'sports24h/send_message.html')
 
 
+def about_index(request):
+    return render(request,'sports24h/about.html')
+
+def inbox(request):
+    messages = Message.objects.filter(recipient=request.user).order_by('-sent_at')
+    return render(request, 'sports24h/send_message.html', {'messages': messages})
+
 def send_message_submit(request):
     if request.method == 'POST':
         recipient_username = request.POST['recipient']

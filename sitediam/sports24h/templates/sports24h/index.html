@@ -14,7 +14,10 @@
 	<header>
         <div class="top">
 		    <h1>Sports24h</h1>
-			<input type="text" placeholder="Search..">
+			{% block search_box %}
+   		 <input type="text" placeholder="Search..">
+			{% endblock %}
+
             <div class="user-info">
 				<a href="{% url 'sports24h:shopping_cart' %}">
   					<img class="shopping_cart" src="{% static 'sports24h/images/shopping-cart.png' %}" alt="Shopping Cart">
@@ -28,7 +31,7 @@
 				<li><a href="{% url 'sports24h:index' %}">Home</a></li>
 				<li><a href="{% url 'sports24h:forums_index' %}">Forums</a></li>
 				<li><a href="#">Products</a></li>
-				<li><a href="#">About</a></li>
+				<li><a href="{% url 'sports24h:about_index' %}">About</a></li>
                 <li><a href="{% url 'sports24h:send_message_html' %}">Messages</a></li>
 			</ul>
 		</nav>

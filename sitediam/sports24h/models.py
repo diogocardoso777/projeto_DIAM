@@ -92,11 +92,13 @@ class Likes(models.Model):
 
 
 class Message(models.Model):
-    sent_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent')
-    received_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received')
-    text = models.TextField()
-    created_at = models.DateTimeField(default=datetime.now)
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE,default=1)
+    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE, null=True, blank=True)
+    content = models.TextField()
+    sent_at = models.DateTimeField(default=datetime.now)
 
+    def __str__(self):
+        return f'{self.sender.username} -> {self.recipient.username}: {self.content[:30]}'
 
 class Post(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE)
@@ -136,11 +138,4 @@ class Review(models.Model):
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     created_at = models.DateTimeField(default=datetime.now)
 
-class Message(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
-    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
-    content = models.TextField()
-    sent_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f'{self.sender.username} -> {self.recipient.username}: {self.content[:30]}'

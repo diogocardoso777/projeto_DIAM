@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends 'sports24h/index.html' %}
+{% block search_box %}{% endblock %}
+{% block content %}
+<h1>Mensagens Recebidas:</h1>
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>De: {{ message.sender }} - {{ message.sent_at }}<br>{{ message.content }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Não há mensagens para exibir.</p>
+{% endif %}
+{% endblock %}
+
+</body>
+</html>
