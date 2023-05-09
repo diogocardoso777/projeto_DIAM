@@ -1,0 +1,20 @@
+{% extends "sports24h/create_product.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+	<title>Create Country</title>
+	{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <form id="post" class="post" action="{% url 'sports24h:create_country' %}" method="post">
+        {% csrf_token %}
+        <h2>Create new country</h2>
+        <label>Name: </label>
+        <input type="text" name="name" value="" >
+    </form>
+    {% endblock %}
+</body>
+</html>

@@ -22,6 +22,10 @@ class Sport(models.Model):
     name = models.CharField(max_length=50)
 
 
+class Size(models.Model):
+    name = models.CharField(max_length=20)
+
+
 class Forum(models.Model):
     name = models.CharField(max_length=50)
     genre = models.CharField(max_length=50)
@@ -97,11 +101,9 @@ class Message(models.Model):
 class Post(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, null=True)
     forum = models.ForeignKey("Forum", on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
-    is_active = models.BooleanField(default=True)
 
 
 class Comment(models.Model):
@@ -112,11 +114,13 @@ class Comment(models.Model):
 
 
 class Product(models.Model):
+    owner = models.ForeignKey("Seller", on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50)
     price = models.FloatField()
     size = models.CharField(max_length=10)
     photo = models.CharField(max_length=100, default="PREENCHER")
     created_at = models.DateTimeField(default=datetime.now)
+    is_active = models.BooleanField(default=True)
 
 
 class ShoppingCart(models.Model):
