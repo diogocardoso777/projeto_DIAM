@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends 'sports24h/index.html' %}
+
+{% block content %}
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
+<form id="send_message" action="{% url 'sports24h:send_message_submit' %}" method="post">
+    {% csrf_token %}
+    <h1>Enviar mensagem para outro utilizador:</h1>
+    <p></p>
+    <label>Destinatário:</label>
+    <input type="text" name="recipient" value="" >
+    <label>Mensagem:</label>
+    <textarea name="message" rows="4" cols="50"></textarea>
+    <p></p>
+    <input type="submit" value="Enviar mensagem">
+  </form>
+{% endblock %}
+
+</form>
+
+</body>
+</html>

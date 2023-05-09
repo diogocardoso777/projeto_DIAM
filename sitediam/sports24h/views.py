@@ -7,14 +7,17 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Message
+
+
 
 # Create your views here.
 
-from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 
-from .models import Post, Forum, Client, Seller, Country, Team, Sport, Product
+from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 
 def index(request):
@@ -339,24 +342,23 @@ def shopping_cart(request):
     if request.method != "POST":
         return render(request, 'sports24h/shoppping_cart.html')
 
-#
-# #### utility functions ####
-#
-# def is_valid_field(type, value):
-#     if type == "email":
-#         try:
-#             validate_email(value)
-#         except ValidationError:
-#             return False
-#     elif type == "passwd":
-#         if len(value) < 8:
-#             return False
-#     elif type == "birthdate":
-#         try:
-#             birthdate = date.fromisoformat(value)
-#             if (date.today() - birthdate).days < 365 * 18:
-#                 return False
-#         except ValueError:
-#             return False
-#
-#     return True
+
+def send_message_html(request):
+    return render(request, 'sports24h/send_message.html')
+
+
+def send_message_submit(request):
+    if request.method == 'POST':
+        recipient_username = request.POST['recipient']
+        content = request.POST['message']
+
+        try:
+            recipient = User.objects.get(username=recipient_username)
+            message = Message(sender=request.user, recipient=recipient, content=content)
+            message.save()
+            return redirect('sports24h:index')  # Redirect to the main page after sending the message
+        except User.DoesNotExist:
+            return render(request, 'sports24h/send_message.html', {'error': 'Destinatário não encontrado'})
+
+    return render(request, 'sports24h/send_message.html')
+

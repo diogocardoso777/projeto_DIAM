@@ -53,5 +53,8 @@ urlpatterns = [
     # shopping cart
     path('shopping_cart', views.shopping_cart, name='shopping_cart'),
 
-    #
+    # send messages
+    path('send_message/', views.send_message_html, name='send_message_html'),
+    path('send_message/submit/', views.send_message_submit, name='send_message_submit'),
+
 ]
