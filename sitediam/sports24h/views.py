@@ -274,24 +274,21 @@ def shopping_cart(request):
 #
 #     return True
 
-def send_message(request):
+def send_message_html(request):
     return render(request, 'sports24h/send_message.html')
 
-def create_message(request):
+def send_message(request):
     if request.method == 'POST':
-        receiver_username = request.POST['receiver']
-        content = request.POST['content']
+        recipient_username = request.POST['recipient']
+        content = request.POST['message']
 
         try:
-            receiver = User.objects.get(username=receiver_username)
-            message = Message(sender=request.user, receiver=receiver, content=content)
+            recipient = User.objects.get(username=recipient_username)
+            message = Message(sender=request.user, recipient=recipient, content=content)
             message.save()
-            return redirect('create_message')
+            return redirect('sports24h:index')  # Redirect to the main page after sending the message
         except User.DoesNotExist:
-            error_message = "User not found"
-            return render(request, 'sports24h/send_messages.html', {'error_message': error_message})
+            return render(request, 'sports24h/send_message.html', {'error': 'Destinatário não encontrado'})
 
-    return render(request, 'sports24h/send_messages.html')
+    return render(request, 'sports24h/send_message.html')
 
-def send_message(request):
-    return render(request, 'sports24h/send_messages.html')
