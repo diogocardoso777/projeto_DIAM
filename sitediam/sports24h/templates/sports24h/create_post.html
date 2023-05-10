@@ -16,8 +16,8 @@
         <input type="text" name="title" value="" >
         <label> Forum:</label>
         <select id="forums" name="forums">
-            {% for forum in Forum.objects.all %}
-            <option value="{{ forum.name }}">{{ forum.name }}</option>
+            {% for forum in forum_list %}
+            <option value="{{ forum.name }}">{{ forum.name }} - {{ forum.genre }}</option>
             {% endfor %}
         </select>
         <label> Description:</label>

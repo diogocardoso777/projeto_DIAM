@@ -12,10 +12,16 @@ from django.contrib.auth.models import User
 class Country(models.Model):
     name = models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.name
+
 
 class Team(models.Model):
     name = models.CharField(max_length=50)
     country = models.ForeignKey("Country", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class Sport(models.Model):
@@ -131,6 +137,7 @@ class Review(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     created_at = models.DateTimeField(default=datetime.now)
+
 
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)

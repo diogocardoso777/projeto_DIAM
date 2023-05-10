@@ -60,7 +60,6 @@ nav a {
 	text-transform: uppercase;
 	transition: all 0.3s ease;
 }
-
 nav a:hover {
 	color: #f00;
 }

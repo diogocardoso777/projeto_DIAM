@@ -17,6 +17,10 @@ urlpatterns = [
 
     path("forums", views.forums_index, name="forums_index"),
 
+    path("follow_forum", views.follow_forum, name="follow_forum"),
+
+    path('post', views.post, name='post'),
+
     # create forum
     path("create_forum", views.forum, name="create_forum"),
 
@@ -43,5 +47,4 @@ urlpatterns = [
     # send messages
     path('send_message/', views.send_message_html, name='send_message_html'),
     path('send_message/submit/', views.send_message_submit, name='send_message_submit'),
-
 ]

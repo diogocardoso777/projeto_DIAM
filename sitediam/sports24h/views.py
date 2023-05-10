@@ -6,11 +6,12 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
-from .models import Message
-
-
+from .models import Message, FollowsForum
+from .models import Post, Forum, Client, Seller, Country, Team, Sport
+from django.db import IntegrityError
 
 # Create your views here.
 
@@ -23,16 +24,28 @@ from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 def index(request):
     post_list = Post.objects.order_by('-created_at')
-    context = {
-        'post_list': post_list,
-    }
-    return render(request, 'sports24h/index.html', context)
+    if request.user.is_authenticated:
+        try:
+            c = Client.objects.get(user=request.user)
+        except Client.DoesNotExist:
+            c = Seller.objects.get(user=request.user)
+        context = {
+            'post_list': post_list,
+            'user': c
+        }
+        return render(request, 'sports24h/index.html', context)
+    else:
+        return render(request, 'sports24h/login.html')
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def post(request):
     if not request.method == 'POST':
-        return render(request, 'sports24h/create_post.html')
+        forum_list = Forum.objects.order_by('-name')
+        context = {
+            'forum_list': forum_list,
+        }
+        return render(request, 'sports24h/create_post.html', context)
     title = request.POST.get('title', '')
     forum = request.POST.get('forum', '')
     description = request.POST.get('description', '')
@@ -43,12 +56,34 @@ def post(request):
 
 
 def forums_index(request):
-    forum_list = Forum.objects.order_by('-name')
+    user_followed_forums = request.user.followsforum_set.all().values_list('forum__id', flat=True)
+    forums = Forum.objects.exclude(id__in=user_followed_forums).order_by('-name')
+    followed_forums = Forum.objects.filter(id__in=user_followed_forums).order_by('-name')
     context = {
-        'forum_list': forum_list,
+        'forums': forums,
+        'followed_forums': followed_forums,
     }
     return render(request, 'sports24h/forums_index.html', context)
 
+
+def follow_forum(request):
+    if not request.method == 'POST':
+        return forums_index(request)
+
+    forum_id = request.POST.get('forum_id')
+    forum = get_object_or_404(Forum, pk=forum_id)
+    try:
+        follow = FollowsForum.objects.create(user=request.user, forum=forum)
+    except IntegrityError:
+        context = {
+            'message': "You are already following the forum " + forum.name,
+        }
+    else:
+        context = {
+            'message': "You followed the forum " + forum.name,
+        }
+
+    return render(request, 'sports24h/forums_index.html', context)
 
 
 def forum(request):
@@ -66,7 +101,14 @@ def forum(request):
 def register_user(request):
     if not request.method == 'POST':
         return render(request, 'sports24h/register.html')
+    passwd = request.POST.get('password')
+    confirm_passwd = request.POST.get('confirm_password')
 
+    if passwd != confirm_passwd:
+        context = {
+            'error_message': "Passwords não coincidem",
+        }
+        return render(request, 'sports24h/register.html', context=context)
     username = request.POST.get('username')
     user_type = request.POST.get('user_type')
     email = request.POST.get('email')
@@ -133,21 +175,25 @@ def login_user(request):
     if username and passwd:
         user = authenticate(username=username, password=passwd)
 
-    if user is not None:
-        # user exists
-        login(request, user)
-        # a = Aluno.objects.get(user=user)
-        # request.session['curso'] = a.curso
-        # request.session['num_votos'] = a.votos
-        # request.session['foto'] = a.foto
-        return HttpResponseRedirect(reverse('sports24h:index'))
-    else:
-        # user doesn't exist
-        context = {
-            'error_message': "O utilizador não existe na base de dados! Por favor, verifique se os dados introduzidos "
-                             "estão corretos.",
-        }
-        return render(request, 'sports24h/login.html', context)
+        if user is not None:
+            # user exists
+            login(request, user)
+            # a = Aluno.objects.get(user=user)
+            # request.session['curso'] = a.curso
+            # request.session['num_votos'] = a.votos
+            # request.session['foto'] = a.foto
+            return HttpResponseRedirect(reverse('sports24h:index'))
+        else:
+            # user doesn't exist
+            context = {
+                'error_message': "O utilizador não existe na base de dados! Por favor, verifique se os dados introduzidos "
+                                 "estão corretos.",
+            }
+            return render(request, 'sports24h/login.html', context)
+    context = {
+        'error_message': "Preencha todos os campos",
+    }
+    return render(request, 'sports24h/login.html', context)
 
 
 def logout_user(request):
@@ -254,6 +300,7 @@ def shopping_cart(request):
     if request.method != "POST":
         return render(request, 'sports24h/shoppping_cart.html')
 
+
 #
 # #### utility functions ####
 #
@@ -279,6 +326,7 @@ def shopping_cart(request):
 def send_message_html(request):
     return render(request, 'sports24h/send_message.html')
 
+
 def send_message_submit(request):
     if request.method == 'POST':
         recipient_username = request.POST['recipient']
@@ -293,4 +341,3 @@ def send_message_submit(request):
             return render(request, 'sports24h/send_message.html', {'error': 'Destinatário não encontrado'})
 
     return render(request, 'sports24h/send_message.html')
-
