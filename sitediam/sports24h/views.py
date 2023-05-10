@@ -3,14 +3,12 @@ from datetime import date
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Message
-
-
+from .models import Message, Product, Size, ShoppingCart
 
 # Create your views here.
 
@@ -20,10 +18,12 @@ from django.urls import reverse, reverse_lazy
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 
-def index(request):
+def index(request):         # TODO mostrar apenas artigos ativos
     post_list = Post.objects.order_by('-created_at')
+    product_list = Product.objects.order_by('-created_at')
     context = {
         'post_list': post_list,
+        'product_list': product_list
     }
     return render(request, 'sports24h/index.html', context)
 
@@ -38,27 +38,35 @@ def post(request):
         return render(request, 'sports24h/create_post.html', context)
     title = request.POST.get('title', '')
     forum = request.POST.get('forum', '')
-    description = request.POST.get('description', '')
-    if title and forum and description:
-        p = Post(owner=request.user, forum=forum, title=title, text=description)
+    text = request.POST.get('text', '')
+    s = Seller.objects.get(user=request.user)
+    if title and forum and text:
+        f = Forum.objects.get(name=forum)
+        p = Post(owner=s, forum=f, title=title, text=text)
         p.save()
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))
+@login_required(login_url=reverse_lazy('sports24h:login_user'))     # TODO permitir seller ter acesso a esta view
 def product(request):
     if not request.method == 'POST':
         forum_list = Forum.objects.order_by('-name')
+        size_list = Size.objects.order_by('-name')
         context = {
             'forum_list': forum_list,
+            'size_list': size_list
         }
         return render(request, 'sports24h/create_product.html', context)
     name = request.POST.get('name')
-    forum = request.POST.get('forum')
     size = request.POST.get('size')
+    forum = request.POST.get('forum')
+    price = request.POST.get('price')
     photo = request.FILES['photo']
-    if name and forum and size and photo:
-        p = Product(owner=request.user, forum=forum, size=size, photo=photo)
+    if name and size and photo and forum and price:
+        seller = Seller.objects.get(user=request.user)
+        s = Size.objects.get(name=size)
+        f = Forum.objects.get(name=forum)
+        p = Product(owner=seller, name=name, size=s, photo=photo, price=price, forum=f)
         p.save()
         return HttpResponseRedirect(reverse('sports24h:index'))
     else:
@@ -66,6 +74,23 @@ def product(request):
             'error_message': "Please, check if the fields are correctly filled.",
         }
         return render(request, 'sports24h/product.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    context = {
+        'product': product
+    }
+    return render(request, 'sports24h/product_detail.html', context)
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def post_detail(request, post_id):
+    post = get_object_or_404(Product, pk=post_id)
+    context = {
+        'post': post
+    }
+    return render(request, 'sports24h/post_detail.html', context)
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
@@ -100,7 +125,6 @@ def sport(request):
         return render(request, 'sports24h/create_sport.html', context=context)
 
 
-
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def country(request):
     if not request.method == 'POST':
@@ -132,6 +156,7 @@ def team(request):
         }
         return render(request, 'sports24h/team.html', context=context)
 
+
 def forums_index(request):
     forum_list = Forum.objects.order_by('-name')
     context = {
@@ -147,7 +172,6 @@ def forum(request):
     genre = request.POST.get('genre', '')
     if name and genre:
         forum = Forum(name=name, genre=genre)
-        forum.save()
         forum.save()
     return HttpResponseRedirect(reverse('sports24h:forums_index'))
 
@@ -340,7 +364,38 @@ def reset_foto(request):
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def shopping_cart(request):
     if request.method != "POST":
-        return render(request, 'sports24h/shoppping_cart.html')
+        try:
+            client = Client.objects.get(user=request.user)
+            cart = ShoppingCart.objects.get(client=client)
+            cart_items = cart.product_list.all()
+        except ObjectDoesNotExist:
+            cart_items = []
+
+        context = {
+            'cart_items': cart_items,
+        }
+        return render(request, 'sports24h/shopping_cart.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def add_to_cart(request, product_id):
+    if not hasattr(request.user, 'client'):
+        # Redirect or handle the case where the user is not a Client
+        return HttpResponseRedirect(reverse('sports24h:index'))
+
+    client = Client.objects.get(user=request.user)
+
+    try:
+        shopping_cart = ShoppingCart.objects.get(client=client)
+    except ObjectDoesNotExist:
+        # Create a new ShoppingCart object for the client
+        shopping_cart = ShoppingCart.objects.create(client=client)
+
+    product = Product.objects.get(id=product_id)
+    shopping_cart.product_list.add(product)
+
+    # Optionally, you can redirect the user to a success page or display a message
+    return HttpResponseRedirect(reverse('sports24h:index'))
 
 
 def send_message_html(request):
@@ -348,11 +403,13 @@ def send_message_html(request):
 
 
 def about_index(request):
-    return render(request,'sports24h/about.html')
+    return render(request, 'sports24h/about.html')
+
 
 def inbox(request):
     messages = Message.objects.filter(recipient=request.user).order_by('-sent_at')
     return render(request, 'sports24h/send_message.html', {'messages': messages})
+
 
 def send_message_submit(request):
     if request.method == 'POST':
@@ -368,4 +425,3 @@ def send_message_submit(request):
             return render(request, 'sports24h/send_message.html', {'error': 'Destinatário não encontrado'})
 
     return render(request, 'sports24h/send_message.html')
-

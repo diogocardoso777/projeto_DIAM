@@ -1,0 +1,20 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Detail {{ product.id }}</title>
+</head>
+    <body>
+        {% block content %}
+        <h2>{{ product.name }}</h2>
+        <p>Size: {{ product.size.name }}</p>
+        <p>Forum: {{ product.forum.name }}</p>
+        <p>Price: {{ product.price }}</p>
+        <img src="{{ product.photo.url }}" alt="{{ product.name }}">
+        {% endblock %}
+        {% block options_and_controls %}
+        <input type="submit" value="Add to cart" />
+	    {% endblock %}
+    </body>
+</html>

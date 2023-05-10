@@ -1,4 +1,4 @@
- extends "sports24h/index.html" %}
+{% extends "sports24h/index.html" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +9,7 @@
 </head>
 <body>
     {% block content %}
-    <form id="post" class="post" action="{% url 'sports24h:create_product' %}" method="post">
+    <form id="post" class="post" action="{% url 'sports24h:create_product' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <h2>Create new product</h2>
         <label>Title: </label>
@@ -26,8 +26,10 @@
             <option value="{{ size.name }}">{{ size.name }}</option>
             {% endfor %}
         </select>
+        <label> Price:</label>
+        <input type="number" name="price" value="" >
         <label> Photo:</label>
-        <input type="file" name="myfile">
+        <input type="file" name="photo">
         <p></p>
     </form>
     {% endblock %}

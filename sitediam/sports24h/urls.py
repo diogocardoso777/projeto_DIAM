@@ -20,7 +20,16 @@ urlpatterns = [
 
     path("create_post", views.post, name="create_post"),
 
+    # post/1  - detail
+    path("post/<int:post_id>", views.post_detail, name="post_detail"),
+
     path("create_product", views.product, name="create_product"),
+
+    # product/1  - detail
+    path("product/<int:product_id>", views.product_detail, name="product_detail"),
+
+    # add to cart
+    path("add_to_cart/<int:product_id>", views.add_to_cart, name="add_to_cart"),
 
     #admin views
     #path("create_country", views., name="create_product"),

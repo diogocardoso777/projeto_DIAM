@@ -1,4 +1,4 @@
- extends "sports24h/create_product.html" %}
+{% extends "sports24h/create_product.html" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,13 +15,13 @@
         <label>Title: </label>
         <input type="text" name="title" value="" >
         <label> Forum:</label>
-        <select id="forums" name="forums">
+        <select id="forums" name="forum">
             {% for forum in forum_list %}
             <option value="{{ forum.name }}">{{ forum.name }}</option>
             {% endfor %}
         </select>
         <label> Description:</label>
-        <input type="text" name="description" value="">
+        <input type="text" name="text" value="">
         <p></p>
     </form>
     {% endblock %}

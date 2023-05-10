@@ -1,0 +1,18 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Detail {{ post.id }}</title>
+</head>
+<body>
+{% block content %}
+  <div class="post-detail">
+    <h2>{{ post.title }}</h2>
+    <p>Forum: {{ post.forum.name }}</p>
+    <p> {{ post.text }}</p>
+    <p>Created by: {{ post.owner.user.username }}</p>
+  </div>
+{% endblock %}
+</body>
+</html>

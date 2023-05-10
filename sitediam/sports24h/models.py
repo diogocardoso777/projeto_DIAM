@@ -34,6 +34,7 @@ class Forum(models.Model):
 class Client(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     birthdate = models.DateField()
+    photo = models.ImageField(upload_to="users", default="default-user-icon.png")
     country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
     favorite_team = models.ForeignKey("Team", on_delete=models.CASCADE, null=True)
     favorite_sport = models.ForeignKey("Sport", on_delete=models.CASCADE, null=True)
@@ -46,6 +47,7 @@ class Client(models.Model):
 class Seller(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     birthdate = models.DateField()
+    photo = models.ImageField(upload_to="users", default="default-user-icon.png")
     country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
     nr_published_posts = models.IntegerField(default=0)
     nr_received_likes = models.IntegerField(default=0)
@@ -55,6 +57,7 @@ class Seller(models.Model):
 class Moderator(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     birthdate = models.DateField()
+    photo = models.ImageField(upload_to="users", default="default-user-icon.png")
     country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
 
 
@@ -92,13 +95,15 @@ class Likes(models.Model):
 
 
 class Message(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE,default=1)
-    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE, null=True, blank=True)
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE, default=1)
+    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE, null=True,
+                                  blank=True)
     content = models.TextField()
     sent_at = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
         return f'{self.sender.username} -> {self.recipient.username}: {self.content[:30]}'
+
 
 class Post(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE)
@@ -119,8 +124,9 @@ class Product(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50)
     price = models.FloatField()
-    size = models.CharField(max_length=10)
-    photo = models.CharField(max_length=100, default="PREENCHER")
+    size = models.ForeignKey("Size", on_delete=models.CASCADE, default=1)
+    forum = models.ForeignKey("Forum", on_delete=models.CASCADE)
+    photo = models.ImageField(upload_to="products", default="default-product-image.png")
     created_at = models.DateTimeField(default=datetime.now)
     is_active = models.BooleanField(default=True)
 
@@ -137,5 +143,3 @@ class Review(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     created_at = models.DateTimeField(default=datetime.now)
-
-

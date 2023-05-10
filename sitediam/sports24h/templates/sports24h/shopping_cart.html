@@ -1,0 +1,55 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Shopping Cart</title>
+    {% endblock %}
+    {% load static %}
+	<link rel="stylesheet" type="text/css" href="{% static 'sports24h/styles.css' %}" />
+</head>
+<body>
+
+{% block content %}
+<main>
+    <section>
+        <h2>Shopping Cart</h2>
+        <div class="cart-items">
+            {% if cart_items %}
+                {% for item in cart_items %}
+                    <div class="cart-item">
+                        <img src="{{ item.photo.url }}" alt="{{ item.name }}">
+                        <div>
+                            <h3>{{ item.name }}</h3>
+                            <p>Price: ${{ item.price }}</p>
+                            <div class="quantity">
+                                <button>-</button>
+                                <input type="number" value="1" min="1">
+                                <button>+</button>
+                            </div>
+                            <span class="remove">Remove</span>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span>$100.00</span> <!-- Replace with actual total -->
+                </div>
+                <div class="checkout">
+                    <a href="#">Proceed to Checkout</a>
+                </div>
+            {% else %}
+                <p class="empty-cart">Your cart is empty.</p>
+            {% endif %}
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block options_and_controls %}
+<div class="cart-options">
+</div>
+{% endblock %}
+</body>
+</html>

@@ -9,7 +9,7 @@
 </head>
 <body>
     {% block content %}
-    <form id="forum" class="forum" action="{% url 'sports24h:create_forum' %}" method="post">
+    <form id="post" class="post" action="{% url 'sports24h:create_forum' %}" method="post">
         {% csrf_token %}
         <h2>Create new forum</h2>
         <label>Name: </label>
