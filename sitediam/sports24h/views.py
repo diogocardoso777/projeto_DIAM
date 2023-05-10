@@ -7,8 +7,12 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from .models import Message, Product, Size, ShoppingCart
+from .models import Message, FollowsForum
+from .models import Post, Forum, Client, Seller, Country, Team, Sport
+from django.db import IntegrityError
 
 # Create your views here.
 
@@ -20,12 +24,21 @@ from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 def index(request):         # TODO mostrar apenas artigos ativos
     post_list = Post.objects.order_by('-created_at')
-    product_list = Product.objects.order_by('-created_at')
-    context = {
-        'post_list': post_list,
-        'product_list': product_list
-    }
-    return render(request, 'sports24h/index.html', context)
+    if request.user.is_authenticated:
+        try:
+            u = Client.objects.get(user=request.user)
+        except Client.DoesNotExist:
+            u = Seller.objects.get(user=request.user)
+        product_list = Product.objects.order_by('-created_at')
+        context = {
+            'post_list': post_list,
+            'product_list': product_list,
+            'user': u
+        }
+        return render(request, 'sports24h/index.html', context)
+    else:
+        return render(request, 'sports24h/login.html')
+
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
@@ -158,10 +171,33 @@ def team(request):
 
 
 def forums_index(request):
-    forum_list = Forum.objects.order_by('-name')
+    user_followed_forums = request.user.followsforum_set.all().values_list('forum__id', flat=True)
+    forum_list = Forum.objects.exclude(id__in=user_followed_forums).order_by('-name')
+    followed_forums = Forum.objects.filter(id__in=user_followed_forums).order_by('-name')
     context = {
-        'forum_list': forum_list,
+        'forums': forum_list,
+        'followed_forums': followed_forums,
     }
+    return render(request, 'sports24h/forums_index.html', context)
+
+
+def follow_forum(request):
+    if not request.method == 'POST':
+        return forums_index(request)
+
+    forum_id = request.POST.get('forum_id')
+    forum = get_object_or_404(Forum, pk=forum_id)
+    try:
+        follow = FollowsForum.objects.create(user=request.user, forum=forum)
+    except IntegrityError:
+        context = {
+            'message': "You are already following the forum " + forum.name,
+        }
+    else:
+        context = {
+            'message': "You followed the forum " + forum.name,
+        }
+
     return render(request, 'sports24h/forums_index.html', context)
 
 
@@ -179,6 +215,14 @@ def forum(request):
 def register_user(request):
     if not request.method == 'POST':
         return render(request, 'sports24h/register.html')
+    passwd = request.POST.get('password')
+    confirm_passwd = request.POST.get('confirm_password')
+
+    if passwd != confirm_passwd:
+        context = {
+            'error_message': "Passwords não coincidem",
+        }
+        return render(request, 'sports24h/register.html', context=context)
     username = request.POST.get('username')
     user_type = request.POST.get('user_type')
     email = request.POST.get('email')

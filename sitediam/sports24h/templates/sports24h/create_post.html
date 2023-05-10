@@ -17,7 +17,7 @@
         <label> Forum:</label>
         <select id="forums" name="forum">
             {% for forum in forum_list %}
-            <option value="{{ forum.name }}">{{ forum.name }}</option>
+            <option value="{{ forum.name }}">{{ forum.name }} - {{ forum.genre }}</option>
             {% endfor %}
         </select>
         <label> Description:</label>

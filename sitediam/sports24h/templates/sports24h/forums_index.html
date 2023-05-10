@@ -8,24 +8,38 @@
     {% endblock %}
 </head>
 <body>
-    {% block content %}
-    <main>
-		<section>
-			<div class="create_forum">
-				<a href="{% url 'sports24h:create_forum' %}">Create a new Forum</a>
-			</div>
-		</section>
-		<section>
-			<h2>Forums</h2>
-			{% for forum in forum_list %}
-			<div class="forum">
-				<h3>{{ forum.name }}</h3>
-				<h4>{{ forum.genre }}</h4>
-				<a href="#">Join forum</a>
-			</div>
-			{% endfor %}
-		</section>
-    </main>
-    {% endblock %}
+{% block content %}
+<main>
+    <section>
+        <div class="create_forum">
+            <a href="{% url 'sports24h:create_forum' %}">Create a new Forum</a>
+        </div>
+    </section>
+    <section>
+        <h2>Forums</h2>
+        {% if message %}
+    <p><strong>{{ message }}</strong></p>
+        {% endif %}
+        {% for forum in forums %}
+        <div class="forum">
+            <h3>{{ forum.name }}</h3>
+            <h4>{{ forum.genre }}</h4>
+            <form method="POST" action="{% url 'sports24h:follow_forum' %}">
+                {% csrf_token %}
+                <input type="hidden" name="forum_id" value="{{ forum.id }}">
+                <button type="submit">Join forum</button>
+            </form>
+        </div>
+        {% endfor %}
+        {% for forum in followed_forums %}
+        <div class="forum">
+            <h3>{{ forum.name }}</h3>
+            <h4>{{ forum.genre }}</h4>
+            <p><strong>Forum followed</strong></p>
+        </div>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}
 </body>
 </html>
