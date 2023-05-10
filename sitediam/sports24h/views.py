@@ -14,6 +14,8 @@ from .models import Message, Product, Size, ShoppingCart, Follows
 from .models import Message, FollowsForum
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 from django.db import IntegrityError
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 # Create your views here.
 
@@ -509,9 +511,40 @@ def add_to_cart(request, product_id):
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
+#def send_message_html(request):
+#    messages = Message.objects.filter(recipient=request.user).order_by('-sent_at')
+#    return render(request, 'sports24h/send_message.html', {'messages': messages})
 def send_message_html(request):
-    return render(request, 'sports24h/send_message.html')
+    messages_list = Message.objects.filter(recipient=request.user).order_by('-sent_at')
+    paginator = Paginator(messages_list, 10)  # Show 10 messages per page
 
+    page = request.GET.get('page')
+    try:
+        messages = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        messages = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        messages = paginator.page(paginator.num_pages)
+
+    return render(request, 'sports24h/send_message.html', {'messages': messages})
+
+def sent_messages_html(request):
+    messages_list = Message.objects.filter(sender=request.user).order_by('-sent_at')
+    paginator = Paginator(messages_list, 10)  # Show 10 messages per page
+
+    page = request.GET.get('page')
+    try:
+        messages = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        messages = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        messages = paginator.page(paginator.num_pages)
+
+    return render(request, 'sports24h/sent_messages.html', {'messages': messages})
 
 def about_index(request):
     return render(request, 'sports24h/about.html')
