@@ -1,0 +1,61 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Follow</title>
+    {% endblock %}
+    <style>
+
+    </style>
+</head>
+<body>
+<main>
+    {% block content %}
+    <h1 class="search-title">Search Users</h1>
+    {% if message %}
+    {{ message }}
+    {% endif %}
+    <form id="search-form" method="POST">
+        {% csrf_token %}
+        <div class="search-container">
+          <input type="text" name="search_query" id="search-query" placeholder="Search users">
+          <button type="submit"><i class="fa fa-search">Search</i></button>
+        </div>
+    </form>
+    <div class="search-results">
+        {% for user in users %}
+        <form method="POST" action="{% url 'sports24h:follow_user' %}">
+            {% csrf_token %}
+            <div class="search-result">
+              <input type="hidden" name="user_id" value="{{ user.id }}">
+              <p>{{ user.username }}
+                  <button type="submit">Follow</button>
+              </p>
+            </div>
+        </form>
+        {% endfor %}
+    </div>
+    <h3>Followed users</h3>
+    <div id="followed users">
+        {% if followed_users %}
+        {% for user in followed_users %}
+        <form method="POST" action="{% url 'sports24h:unfollow_user' %}">
+            {% csrf_token %}
+            <div class="search-result">
+              <input type="hidden" name="user_id" value="{{ user.id }}">
+              <p>{{ user.username }}
+                  <button type="submit">Unfollow</button>
+              </p>
+            </div>
+        </form>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-info">You are not following anyone yet.</div>
+        {% endif %}
+    </div>
+    {% endblock %}
+</main>
+</body>
+</html>

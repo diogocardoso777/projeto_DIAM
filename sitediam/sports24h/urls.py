@@ -70,5 +70,11 @@ urlpatterns = [
     path('send_message/', views.inbox, name='receive_message'),
 
     # about
-    path('about/', views.about_index, name='about_index')
+    path('about/', views.about_index, name='about_index'),
+
+    path('search_users', views.search_users, name='search_users'),
+
+    path('follow_user', views.follow_user, name='follow_user'),
+
+    path('unfollow_user', views.unfollow_user, name='unfollow_user'),
 ]
