@@ -15,7 +15,6 @@ from django.db import IntegrityError
 
 # Create your views here.
 
-from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 
@@ -54,6 +53,93 @@ def post(request):
         p.save()
     return HttpResponseRedirect(reverse('sports24h:index'))
 
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def product(request):
+    if not request.method == 'POST':
+        forum_list = Forum.objects.order_by('-name')
+        context = {
+            'forum_list': forum_list,
+        }
+        return render(request, 'sports24h/create_product.html', context)
+    name = request.POST.get('name')
+    forum = request.POST.get('forum')
+    size = request.POST.get('size')
+    photo = request.FILES['photo']
+    if name and forum and size and photo:
+        p = Product(owner=request.user, forum=forum, size=size, photo=photo)
+        p.save()
+        return HttpResponseRedirect(reverse('sports24h:index'))
+    else:
+        context = {
+            'error_message': "Please, check if the fields are correctly filled.",
+        }
+        return render(request, 'sports24h/product.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def size(request):
+    if not request.method == 'POST':
+        return render(request, 'sports24h/create_size.html')
+    name = request.POST.get('name')
+    if name:
+        s = Size(name=name)
+        s.save()
+        return HttpResponseRedirect(reverse('sports24h:index'))
+    else:
+        context = {
+            'error_message': "Please, check if the fields are correctly filled.",
+        }
+        return render(request, 'sports24h/create_size.html', context=context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def sport(request):
+    if not request.method == 'POST':
+        return render(request, 'sports24h/create_sport.html')
+    name = request.POST.get('name')
+    if name:
+        s = Sport(name=name)
+        s.save()
+        return HttpResponseRedirect(reverse('sports24h:index'))
+    else:
+        context = {
+            'error_message': "Please, check if the fields are correctly filled.",
+        }
+        return render(request, 'sports24h/create_sport.html', context=context)
+
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def country(request):
+    if not request.method == 'POST':
+        return render(request, 'sports24h/create_country.html')
+    name = request.POST.get('name')
+    if name:
+        c = Country(name=name)
+        c.save()
+        return HttpResponseRedirect(reverse('sports24h:index'))
+    else:
+        context = {
+            'error_message': "Please, check if the fields are correctly filled.",
+        }
+        return render(request, 'sports24h/create_country.html', context=context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def team(request):
+    if not request.method == 'POST':
+        return render(request, 'sports24h/create_team.html')
+    name = request.POST.get('name')
+    if name:
+        t = Team(name=name)
+        t.save()
+        return HttpResponseRedirect(reverse('sports24h:index'))
+    else:
+        context = {
+            'error_message': "Please, check if the fields are correctly filled.",
+        }
+        return render(request, 'sports24h/team.html', context=context)
 
 def forums_index(request):
     user_followed_forums = request.user.followsforum_set.all().values_list('forum__id', flat=True)
@@ -301,31 +387,16 @@ def shopping_cart(request):
         return render(request, 'sports24h/shoppping_cart.html')
 
 
-#
-# #### utility functions ####
-#
-# def is_valid_field(type, value):
-#     if type == "email":
-#         try:
-#             validate_email(value)
-#         except ValidationError:
-#             return False
-#     elif type == "passwd":
-#         if len(value) < 8:
-#             return False
-#     elif type == "birthdate":
-#         try:
-#             birthdate = date.fromisoformat(value)
-#             if (date.today() - birthdate).days < 365 * 18:
-#                 return False
-#         except ValueError:
-#             return False
-#
-#     return True
-
 def send_message_html(request):
     return render(request, 'sports24h/send_message.html')
 
+
+def about_index(request):
+    return render(request,'sports24h/about.html')
+
+def inbox(request):
+    messages = Message.objects.filter(recipient=request.user).order_by('-sent_at')
+    return render(request, 'sports24h/send_message.html', {'messages': messages})
 
 def send_message_submit(request):
     if request.method == 'POST':

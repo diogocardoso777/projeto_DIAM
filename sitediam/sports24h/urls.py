@@ -13,16 +13,25 @@ urlpatterns = [
 
     path("logout", views.logout_user, name="logout_user"),
 
-    path("create_post", views.post, name="create_post"),
-
     path("forums", views.forums_index, name="forums_index"),
-
-    path("follow_forum", views.follow_forum, name="follow_forum"),
-
-    path('post', views.post, name='post'),
 
     # create forum
     path("create_forum", views.forum, name="create_forum"),
+
+    path("create_post", views.post, name="create_post"),
+
+    path("create_product", views.product, name="create_product"),
+
+    #admin views
+    #path("create_country", views., name="create_product"),
+
+    path("create_country", views.country, name="create_country"),
+
+    path("create_size", views.size, name="create_size"),
+
+    path("create_sport", views.sport, name="create_sport"),
+
+    path("create_team", views.team, name="create_team"),
 
     # user profile
     path("profile", views.profile, name="profile"),
@@ -47,4 +56,10 @@ urlpatterns = [
     # send messages
     path('send_message/', views.send_message_html, name='send_message_html'),
     path('send_message/submit/', views.send_message_submit, name='send_message_submit'),
+
+    #receive messages
+    path('send_message/', views.inbox, name='receive_message'),
+
+    # about
+    path('about/', views.about_index, name='about_index')
 ]

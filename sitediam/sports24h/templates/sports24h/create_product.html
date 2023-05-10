@@ -1,0 +1,40 @@
+ extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+	<title>Create Product</title>
+	{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <form id="post" class="post" action="{% url 'sports24h:create_product' %}" method="post">
+        {% csrf_token %}
+        <h2>Create new product</h2>
+        <label>Title: </label>
+        <input type="text" name="name" value="" >
+        <label> Forum:</label>
+        <select id="forums" name="forum">
+            {% for forum in forum_list %}
+            <option value="{{ forum.name }}">{{ forum.name }}</option>
+            {% endfor %}
+        </select>
+        <label> Size:</label>
+        <select id="sizes" name="size">
+            {% for size in size_list %}
+            <option value="{{ size.name }}">{{ size.name }}</option>
+            {% endfor %}
+        </select>
+        <label> Photo:</label>
+        <input type="file" name="myfile">
+        <p></p>
+    </form>
+    {% endblock %}
+
+    {% block options_and_controls %}
+    <input type="submit" value="Submeter" form="post"/>
+	{% endblock %}
+
+</body>
+</html>

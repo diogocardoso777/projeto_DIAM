@@ -12,20 +12,18 @@ from django.contrib.auth.models import User
 class Country(models.Model):
     name = models.CharField(max_length=50)
 
-    def __str__(self):
-        return self.name
-
 
 class Team(models.Model):
     name = models.CharField(max_length=50)
     country = models.ForeignKey("Country", on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.name
-
 
 class Sport(models.Model):
     name = models.CharField(max_length=50)
+
+
+class Size(models.Model):
+    name = models.CharField(max_length=20)
 
 
 class Forum(models.Model):
@@ -94,20 +92,20 @@ class Likes(models.Model):
 
 
 class Message(models.Model):
-    sent_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent')
-    received_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received')
-    text = models.TextField()
-    created_at = models.DateTimeField(default=datetime.now)
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE,default=1)
+    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE, null=True, blank=True)
+    content = models.TextField()
+    sent_at = models.DateTimeField(default=datetime.now)
 
+    def __str__(self):
+        return f'{self.sender.username} -> {self.recipient.username}: {self.content[:30]}'
 
 class Post(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, null=True)
     forum = models.ForeignKey("Forum", on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(default=datetime.now)
-    is_active = models.BooleanField(default=True)
 
 
 class Comment(models.Model):
@@ -118,11 +116,13 @@ class Comment(models.Model):
 
 
 class Product(models.Model):
+    owner = models.ForeignKey("Seller", on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50)
     price = models.FloatField()
     size = models.CharField(max_length=10)
     photo = models.CharField(max_length=100, default="PREENCHER")
     created_at = models.DateTimeField(default=datetime.now)
+    is_active = models.BooleanField(default=True)
 
 
 class ShoppingCart(models.Model):
@@ -139,11 +139,3 @@ class Review(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
 
 
-class Message(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
-    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
-    content = models.TextField()
-    sent_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.sender.username} -> {self.recipient.username}: {self.content[:30]}'
