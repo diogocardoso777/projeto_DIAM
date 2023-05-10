@@ -39,9 +39,11 @@
 	{% block header %}
 	<header>
         <div class="top">
-		    <h1>Sports24h</h1>
+			<a href="{% url 'sports24h:index' %}" class="a_none"><div>
+		    	<h1>Sports24h</h1>
+			</div></a>
 			{% block search_box %}
-   		 <input type="text" placeholder="Search..">
+   		 <input type="text" class="main_search" placeholder="Search..">
 			{% endblock %}
 
         <div class="user-info">

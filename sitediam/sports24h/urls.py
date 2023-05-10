@@ -18,6 +18,8 @@ urlpatterns = [
     # create forum
     path("create_forum", views.forum, name="create_forum"),
 
+    path("follow_forum", views.follow_forum, name="follow_forum"),
+
     path("create_post", views.post, name="create_post"),
 
     # post/1  - detail
