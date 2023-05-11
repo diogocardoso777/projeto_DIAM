@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% extends 'sports24h/index.html' %}
+
+{% block search_box %}{% endblock %}
+
+{% block content %}
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <h1>Mensagens Enviadas:</h1>
+    {% if messages %}
+      <table style="width:100%; border-collapse: collapse;">
+        <tr>
+          <th style="border: 1px solid black; padding: 5px;">Destinatário</th>
+          <th style="border: 1px solid black; padding: 5px; width: 70%;">Mensagem</th>
+          <th style="border: 1px solid black; padding: 5px; width: 30%;">Data</th>
+        </tr>
+        {% for message in messages.object_list %}
+        <tr>
+            <td style="border: 1px solid black; padding: 5px;">{{ message.recipient.username }}</td>
+            {% if message.content|length > 30 %}
+                <td style="border: 1px solid black; padding: 5px; cursor: pointer;" onclick='displayMessage("{{ message.content }}")'>{{ message.content|truncatechars:30 }}</td>
+            {% else %}
+                <td style="border: 1px solid black; padding: 5px;">{{ message.content }}</td>
+            {% endif %}
+            <td style="border: 1px solid black; padding: 5px;">{{ message.sent_at }}</td>
+        </tr>
+    {% endfor %}
+
+      </table>
+
+      <div class="pagination">
+        <span class="step-links">
+            {% if messages.has_previous %}
+                <a href="?page={{ messages.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span class="current">
+                Página {{ messages.number }} de {{ messages.paginator.num_pages }}.
+            </span>
+            {% if messages.has_next %}
+                <a href="?page={{ messages.next_page_number }}">Próximo</a>
+            {% endif %}
+        </span>
+      </div>
+    {% else %}
+      <p>Não há mensagens para exibir.</p>
+    {% endif %}
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-message"></p>
+        </div>
+    </div>
+{% endblock %}
+
+</body>
+</html>

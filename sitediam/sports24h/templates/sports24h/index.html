@@ -39,9 +39,11 @@
 	{% block header %}
 	<header>
         <div class="top">
-		    <h1>Sports24h</h1>
+			<a href="{% url 'sports24h:index' %}" class="a_none"><div>
+		    	<h1>Sports24h</h1>
+			</div></a>
 			{% block search_box %}
-   		 <input type="text" placeholder="Search..">
+   		 <input type="text" class="main_search" placeholder="Search..">
 			{% endblock %}
 
         <div class="user-info">
@@ -84,6 +86,7 @@
             <li><a href="{% url 'sports24h:index' %}">Home</a></li>
             <li><a href="{% url 'sports24h:forums_index' %}">Forums</a></li>
             <li><a href="#">Products</a></li>
+			<li><a href="{% url 'sports24h:search_users' %}">Follow</a></li>
             <li><a href="{% url 'sports24h:about_index' %}">About</a></li>
             <li><a href="{% url 'sports24h:send_message_html' %}">Messages</a></li>
         </ul>

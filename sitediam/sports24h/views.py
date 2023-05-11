@@ -6,17 +6,19 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
+from django.db.models import Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
-from .models import Message, Product, Size, ShoppingCart, Likes
+from .models import Message, Product, Size, ShoppingCart, Follows, Comment,  Likes
 from .models import Message, FollowsForum
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 from django.db import IntegrityError
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
 
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
@@ -43,7 +45,6 @@ def index(request):         # TODO mostrar apenas artigos ativos
         return render(request, 'sports24h/login.html')
 
 
-
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def post(request):
     if not request.method == 'POST':
@@ -63,7 +64,7 @@ def post(request):
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))     # TODO permitir seller ter acesso a esta view
+@login_required(login_url=reverse_lazy('sports24h:login_user'))  # TODO permitir seller ter acesso a esta view
 def product(request):
     if not request.method == 'POST':
         forum_list = Forum.objects.order_by('-name')
@@ -93,6 +94,72 @@ def product(request):
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
+def follow_user(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        user = User.objects.get(id=user_id)
+        follows, created = Follows.objects.get_or_create(following_user=request.user, followed_user=user)
+        if created:
+            follows.save()
+            return redirect('sports24h:search_users')
+        else:
+            return redirect('sports24h:search_users')
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def search_users(request):
+    if not request.method == 'POST':
+        followed_user_ids = Follows.objects.filter(
+            following_user=request.user
+        ).values_list('followed_user__id', flat=True)
+        followed_users = User.objects.filter(
+            id__in=followed_user_ids
+        )
+        context = {
+            'followed_users': followed_users
+        }
+
+        return render(request, 'sports24h/search_users.html', context)
+    search_query = request.POST.get('search_query')
+    followed_user_ids = Follows.objects.filter(
+        following_user=request.user
+    ).values_list('followed_user__id', flat=True)
+
+    # filter the search results to exclude followed users
+    users = User.objects.filter(
+        username__icontains=search_query
+    ).exclude(
+        id=request.user.id
+    ).exclude(
+        id__in=followed_user_ids
+    )
+
+    # get the list of User objects of the followed users
+    followed_users = User.objects.filter(
+        id__in=followed_user_ids
+    )
+
+    context = {
+        'users': users,
+        'followed_users': followed_users
+    }
+    return render(request, 'sports24h/search_users.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def unfollow_user(request):
+    user_id = request.POST.get('user_id')
+    followed_user = get_object_or_404(User, id=user_id)
+    if user_id is not None:
+        follow = Follows.objects.get(following_user=request.user, followed_user=followed_user)
+        follow.delete()
+    return redirect('sports24h:search_users')
+
+
+# handle invalid user_id value
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
 def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     context = {
@@ -100,13 +167,27 @@ def product_detail(request, product_id):
     }
     return render(request, 'sports24h/product_detail.html', context)
 
+
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def post_detail(request, post_id):
-    post = get_object_or_404(Product, pk=post_id)
+    post = get_object_or_404(Post, pk=post_id)
+    comments = Comment.objects.filter(post=post)
     context = {
-        'post': post
+        'post': post,
+        'comments': comments
     }
     return render(request, 'sports24h/post_detail.html', context)
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def add_comment(request):
+    if request.method == 'POST':
+        comment_text = request.POST.get("comment_text")
+        post_id = request.POST.get("post_id")
+        post = Post.objects.get(pk=post_id)
+        comment = Comment.objects.create(user=request.user, post=post, text=comment_text)
+        return redirect('sports24h:post_detail', post_id=post_id)
+    else:
+        return redirect('sports24h:index')
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
@@ -192,7 +273,6 @@ def follow_forum(request):
     forum = get_object_or_404(Forum, pk=forum_id)
     try:
         follow = FollowsForum.objects.create(user=request.user, forum=forum)
-        follow.save()
     except IntegrityError:
         context = {
             'message': "You are already following the forum " + forum.name,
@@ -456,7 +536,37 @@ def remove_from_cart(request, product_id):
 
 
 def send_message_html(request):
-    return render(request, 'sports24h/send_message.html')
+    messages_list = Message.objects.filter(recipient=request.user).order_by('-sent_at')
+    paginator = Paginator(messages_list, 10)  # Show 10 messages per page
+
+    page = request.GET.get('page')
+    try:
+        messages = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        messages = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        messages = paginator.page(paginator.num_pages)
+
+    return render(request, 'sports24h/send_message.html', {'messages': messages})
+
+
+def sent_messages_html(request):
+    messages_list = Message.objects.filter(sender=request.user).order_by('-sent_at')
+    paginator = Paginator(messages_list, 10)  # Show 10 messages per page
+
+    page = request.GET.get('page')
+    try:
+        messages = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        messages = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        messages = paginator.page(paginator.num_pages)
+
+    return render(request, 'sports24h/sent_messages.html', {'messages': messages})
 
 
 def about_index(request):

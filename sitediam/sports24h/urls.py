@@ -25,6 +25,8 @@ urlpatterns = [
     # post/1  - detail
     path("post/<int:post_id>", views.post_detail, name="post_detail"),
 
+    path("add_comment", views.add_comment, name="add_comment"),
+
     path("create_product", views.product, name="create_product"),
 
     # product/1  - detail
@@ -73,9 +75,18 @@ urlpatterns = [
     #receive messages
     path('send_message/', views.inbox, name='receive_message'),
 
+    #sent messages
+    path('sent_messages/', views.sent_messages_html, name='sent_messages_html'),
+
     # like post
     path('like/<int:post_id>', views.like, name='like'),
 
     # about
-    path('about/', views.about_index, name='about_index')
+    path('about/', views.about_index, name='about_index'),
+
+    path('search_users', views.search_users, name='search_users'),
+
+    path('follow_user', views.follow_user, name='follow_user'),
+
+    path('unfollow_user', views.unfollow_user, name='unfollow_user'),
 ]
