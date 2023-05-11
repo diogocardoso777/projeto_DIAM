@@ -71,6 +71,9 @@ urlpatterns = [
     #receive messages
     path('send_message/', views.inbox, name='receive_message'),
 
+    #sent messages
+    path('sent_messages/', views.sent_messages_html, name='sent_messages_html'),
+
     # about
     path('about/', views.about_index, name='about_index'),
 
