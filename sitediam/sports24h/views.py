@@ -10,12 +10,11 @@ from django.db.models import Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
-from .models import Message, Product, Size, ShoppingCart, Follows
+from .models import Message, Product, Size, ShoppingCart, Follows, Comment
 from .models import Message, FollowsForum
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 from django.db import IntegrityError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
 
 # Create your views here.
 
@@ -168,11 +167,24 @@ def product_detail(request, product_id):
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def post_detail(request, post_id):
-    post = get_object_or_404(Product, pk=post_id)
+    post = get_object_or_404(Post, pk=post_id)
+    comments = Comment.objects.filter(post=post)
     context = {
-        'post': post
+        'post': post,
+        'comments': comments
     }
     return render(request, 'sports24h/post_detail.html', context)
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def add_comment(request):
+    if request.method == 'POST':
+        comment_text = request.POST.get("comment_text")
+        post_id = request.POST.get("post_id")
+        post = Post.objects.get(pk=post_id)
+        comment = Comment.objects.create(user=request.user, post=post, text=comment_text)
+        return redirect('sports24h:post_detail', post_id=post_id)
+    else:
+        return redirect('sports24h:index')
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
@@ -511,7 +523,7 @@ def add_to_cart(request, product_id):
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
-#def send_message_html(request):
+# def send_message_html(request):
 #    messages = Message.objects.filter(recipient=request.user).order_by('-sent_at')
 #    return render(request, 'sports24h/send_message.html', {'messages': messages})
 def send_message_html(request):
@@ -530,6 +542,7 @@ def send_message_html(request):
 
     return render(request, 'sports24h/send_message.html', {'messages': messages})
 
+
 def sent_messages_html(request):
     messages_list = Message.objects.filter(sender=request.user).order_by('-sent_at')
     paginator = Paginator(messages_list, 10)  # Show 10 messages per page
@@ -545,6 +558,7 @@ def sent_messages_html(request):
         messages = paginator.page(paginator.num_pages)
 
     return render(request, 'sports24h/sent_messages.html', {'messages': messages})
+
 
 def about_index(request):
     return render(request, 'sports24h/about.html')

@@ -13,6 +13,32 @@
     <p> {{ post.text }}</p>
     <p>Created by: {{ post.owner.user.username }}</p>
   </div>
+  <form method="post"  action="{% url 'sports24h:add_comment' %}">
+        {% csrf_token %}
+    <div class="comment-button">
+        <button type="button" class= "addToProfile" onclick="toggleCommentForm()">Add Comment</button>
+      </div>
+        <div class="comment-form" style="display:none">
+            <input type="text" name="comment_text">
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+            <button type="submit">Add Comment</button>
+        </div>
+    </form>
+
+<script>
+  function toggleCommentForm() {
+    document.getElementsByClassName("comment-form")[0].style.display = "block";
+    document.getElementsByClassName("comment-button")[0].style.display = "none";
+  }
+</script>
+<h3>Comments</h3>
+{% if comments %}
+{% for comment in comments %}
+<p>{{ comment.text }} - {{ comment.user }} - created_at - {{ comment.created_at }}</p>
+{% endfor %}
+{% else %}
+<p><strong>No comments yet.</strong></p>
+{% endif %}
 {% endblock %}
 </body>
 </html>

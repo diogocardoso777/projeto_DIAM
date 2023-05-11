@@ -25,6 +25,8 @@ urlpatterns = [
     # post/1  - detail
     path("post/<int:post_id>", views.post_detail, name="post_detail"),
 
+    path("add_comment", views.add_comment, name="add_comment"),
+
     path("create_product", views.product, name="create_product"),
 
     # product/1  - detail
