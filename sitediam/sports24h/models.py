@@ -110,6 +110,7 @@ class Post(models.Model):
     title = models.CharField(max_length=50)
     forum = models.ForeignKey("Forum", on_delete=models.CASCADE)
     text = models.TextField()
+    likes_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=datetime.now)
 
 

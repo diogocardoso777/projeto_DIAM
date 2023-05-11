@@ -15,6 +15,8 @@ urlpatterns = [
 
     path("forums", views.forums_index, name="forums_index"),
 
+    path("follow_forum", views.follow_forum, name="follow_forum"),
+
     # create forum
     path("create_forum", views.forum, name="create_forum"),
 
@@ -30,6 +32,8 @@ urlpatterns = [
 
     # add to cart
     path("add_to_cart/<int:product_id>", views.add_to_cart, name="add_to_cart"),
+
+    path("remove_from_cart/<int:product_id>", views.remove_from_cart, name="remove_from_cart"),
 
     #admin views
     #path("create_country", views., name="create_product"),
@@ -68,6 +72,9 @@ urlpatterns = [
 
     #receive messages
     path('send_message/', views.inbox, name='receive_message'),
+
+    # like post
+    path('like/<int:post_id>', views.like, name='like'),
 
     # about
     path('about/', views.about_index, name='about_index')

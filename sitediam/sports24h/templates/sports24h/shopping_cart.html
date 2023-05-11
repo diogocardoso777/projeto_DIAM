@@ -22,19 +22,19 @@
                         <img src="{{ item.photo.url }}" alt="{{ item.name }}">
                         <div>
                             <h3>{{ item.name }}</h3>
-                            <p>Price: ${{ item.price }}</p>
+                            <p class="price">Price: ${{ item.price }}</p>
                             <div class="quantity">
-                                <button>-</button>
-                                <input type="number" value="1" min="1">
-                                <button>+</button>
+                                <button class="decrease-quantity" data-product-id="{{ item.id }}">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1" data-product-id="{{ item.id }}">
+                                <button class="increase-quantity" data-product-id="{{ item.id }}">+</button>
                             </div>
-                            <span class="remove">Remove</span>
+                            <a class="remove" href="{% url 'sports24h:remove_from_cart' item.id %}">Remove</a>
                         </div>
                     </div>
                 {% endfor %}
                 <div class="cart-total">
                     <span>Total:</span>
-                    <span>$100.00</span> <!-- Replace with actual total -->
+                    <span id="total-amount">$100.00</span> <!-- Replace with actual total -->
                 </div>
                 <div class="checkout">
                     <a href="#">Proceed to Checkout</a>
@@ -45,11 +45,15 @@
         </div>
     </section>
 </main>
+<script src="{% static 'sports24h/js/cart.js' %}"></script>
 {% endblock %}
 
 {% block options_and_controls %}
 <div class="cart-options">
 </div>
 {% endblock %}
+
+
+
 </body>
 </html>

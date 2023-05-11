@@ -9,7 +9,7 @@ from django.core.validators import validate_email
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
-from .models import Message, Product, Size, ShoppingCart
+from .models import Message, Product, Size, ShoppingCart, Likes
 from .models import Message, FollowsForum
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 from django.db import IntegrityError
@@ -24,16 +24,19 @@ from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 def index(request):         # TODO mostrar apenas artigos ativos
     post_list = Post.objects.order_by('-created_at')
+    liked_posts = Post.objects.none()
     if request.user.is_authenticated:
         try:
             u = Client.objects.get(user=request.user)
+            liked_posts = Post.objects.filter(likes__user=request.user)
         except Client.DoesNotExist:
             u = Seller.objects.get(user=request.user)
         product_list = Product.objects.order_by('-created_at')
         context = {
             'post_list': post_list,
             'product_list': product_list,
-            'user': u
+            'user': u,
+            'liked_posts': liked_posts,
         }
         return render(request, 'sports24h/index.html', context)
     else:
@@ -189,6 +192,7 @@ def follow_forum(request):
     forum = get_object_or_404(Forum, pk=forum_id)
     try:
         follow = FollowsForum.objects.create(user=request.user, forum=forum)
+        follow.save()
     except IntegrityError:
         context = {
             'message': "You are already following the forum " + forum.name,
@@ -421,14 +425,13 @@ def shopping_cart(request):
         return render(request, 'sports24h/shopping_cart.html', context)
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))
+@login_required(login_url=reverse_lazy('sports24h:login_user'))     # TODO fazer isto acesssivel apenas a users com @client
 def add_to_cart(request, product_id):
     if not hasattr(request.user, 'client'):
         # Redirect or handle the case where the user is not a Client
         return HttpResponseRedirect(reverse('sports24h:index'))
 
     client = Client.objects.get(user=request.user)
-
     try:
         shopping_cart = ShoppingCart.objects.get(client=client)
     except ObjectDoesNotExist:
@@ -440,6 +443,16 @@ def add_to_cart(request, product_id):
 
     # Optionally, you can redirect the user to a success page or display a message
     return HttpResponseRedirect(reverse('sports24h:index'))
+
+
+def remove_from_cart(request, product_id):
+    client = Client.objects.get(user=request.user)
+    shopping_cart = ShoppingCart.objects.get(client=client)
+    product = Product.objects.get(id=product_id)
+    shopping_cart.product_list.remove(product)
+
+    # Optionally, you can redirect the user to a success page or display a message
+    return HttpResponseRedirect(reverse('sports24h:shopping_cart'))
 
 
 def send_message_html(request):
@@ -469,3 +482,16 @@ def send_message_submit(request):
             return render(request, 'sports24h/send_message.html', {'error': 'Destinatário não encontrado'})
 
     return render(request, 'sports24h/send_message.html')
+
+
+def like(request, post_id):          # TODO restringir a instancias de clientes apenas
+    post = Post.objects.get(pk=post_id)
+    try:
+        like = Likes.objects.get(user=request.user, post=post)
+        like.delete()
+        post.likes_count -= 1
+    except ObjectDoesNotExist:
+        like = Likes.objects.create(user=request.user, post=post)
+        post.likes_count += 1
+    post.save()
+    return redirect(request.META['HTTP_REFERER'])

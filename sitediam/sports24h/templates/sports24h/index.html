@@ -109,7 +109,13 @@
 				<h3> {{ post.title }}</h3>
 				<p>{{ post.text }}</p>
 				<a href="#">Comment</a>
-				<a href="#">Like</a>
+				<a href="{% url 'sports24h:like' post_id=post.id %}">
+					{% if post in liked_posts %}
+					Dislike    {{ post.likes_count }}
+					{% else %}
+					Like    {{ post.likes_count }}
+					{% endif %}
+				</a>
 			</div>
 			</a>
 			{% endfor %}
@@ -127,7 +133,6 @@
         			<p>Forum: {{ product.forum.name }}</p>
         			<p>Price: {{ product.price }}</p>
 					<a href="{% url 'sports24h:add_to_cart' product_id=product.id %}">Add to cart</a>
-        			<a href="#">Like</a>
     			</div>
 			</a>
 			{% endfor %}
