@@ -51,7 +51,11 @@
 				<a href="{% url 'sports24h:shopping_cart' %}">
   					<img class="shopping_cart" src="{% static 'media/shopping-cart.png' %}" alt="Shopping Cart">
 				</a>
-                <img src="{% static 'media/users/default-user-icon.png' %}" alt="Profile Photo" class="dropdown-trigger">
+				{% if request.session.photo %}
+				<img src="{{ request.session.photo }}" alt="Profile Photo" class="dropdown-trigger">
+				{% else %}
+				<img src="{% static 'media/users/default-user-icon.png' %}" alt="Profile Photo" class="dropdown-trigger">
+				{% endif %}
                 <div class="dropdown-menu">
                     <a href="{% url 'sports24h:profile' %}">{{ request.user.username }}</a>
                     <form action="{% url 'sports24h:logout_user' %}" method="post">
@@ -84,8 +88,9 @@
     <nav>
         <ul>
             <li><a href="{% url 'sports24h:index' %}">Home</a></li>
+			<li><a href="{% url 'sports24h:products_index' %}">Products</a></li>
+			<li><a href="{% url 'sports24h:posts_index' %}">Posts</a></li>
             <li><a href="{% url 'sports24h:forums_index' %}">Forums</a></li>
-            <li><a href="#">Products</a></li>
 			<li><a href="{% url 'sports24h:search_users' %}">Follow</a></li>
             <li><a href="{% url 'sports24h:about_index' %}">About</a></li>
             <li><a href="{% url 'sports24h:send_message_html' %}">Messages</a></li>
@@ -99,28 +104,28 @@
 		<section>
 			<div class="create_post">
 				<a href="{% url 'sports24h:create_post' %}">Create new Post</a>
-			</div>
-			<div class="create_post">
 				<a href="{% url 'sports24h:create_product' %}">Create new Product</a>
 			</div>
 		</section>
 		<section>
 			<h2>Latest Posts</h2>
 			{% for post in post_list %}
-			<a id="post" href="{% url 'sports24h:post_detail' post_id=post.id %}">
 			<div class="post">
-				<h3> {{ post.title }}</h3>
+			  <a id="post" href="{% url 'sports24h:post_detail' post_id=post.id %}">
+				<h3>{{ post.title }}</h3>
 				<p>{{ post.text }}</p>
+			  </a>
+			  <div class="options">
 				<a href="#">Comment</a>
 				<a href="{% url 'sports24h:like' post_id=post.id %}">
-					{% if post in liked_posts %}
-					Dislike    {{ post.likes_count }}
-					{% else %}
-					Like    {{ post.likes_count }}
-					{% endif %}
+				  {% if post in liked_posts %}
+					Dislike {{ post.likes_count }}
+				  {% else %}
+					Like {{ post.likes_count }}
+				  {% endif %}
 				</a>
+			  </div>
 			</div>
-			</a>
 			{% endfor %}
 			<!-- more user-generated posts -->
 		</section>
@@ -128,16 +133,16 @@
 		<section>
 			<h2>Featured Products</h2>
 			{% for product in product_list %}
-			<a id="product" href="{% url 'sports24h:product_detail' product_id=product.id %}">
-    			<div class="product">
-        			<h3>{{ product.name }}</h3>
-        			<img src="{{ product.photo.url }}">
-        			<p>Size: {{ product.size.name }}</p>
-        			<p>Forum: {{ product.forum.name }}</p>
-        			<p>Price: {{ product.price }}</p>
-					<a href="{% url 'sports24h:add_to_cart' product_id=product.id %}">Add to cart</a>
+    			<div class="post">
+					<a id="product" href="{% url 'sports24h:product_detail' product_id=product.id %}">
+						<h3>{{ product.name }}</h3>
+						<img src="{{ product.photo.url }}">
+						<p>Size: {{ product.size.name }}</p>
+						<p>Forum: {{ product.forum.name }}</p>
+						<p>Price: {{ product.price }}</p>
+						<a href="{% url 'sports24h:add_to_cart' product_id=product.id %}">Add to cart</a>
+					</a>
     			</div>
-			</a>
 			{% endfor %}
 			<!-- more featured products -->
 		</section>

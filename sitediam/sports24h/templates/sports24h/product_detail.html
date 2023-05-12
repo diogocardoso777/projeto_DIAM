@@ -7,14 +7,16 @@
 </head>
     <body>
         {% block content %}
-        <h2>{{ product.name }}</h2>
-        <p>Size: {{ product.size.name }}</p>
-        <p>Forum: {{ product.forum.name }}</p>
-        <p>Price: {{ product.price }}</p>
-        <img src="{{ product.photo.url }}" alt="{{ product.name }}">
+        <div class="product">
+            <h2>{{ product.name }}</h2>
+            <p>Size: {{ product.size.name }}</p>
+            <p>Forum: {{ product.forum.name }}</p>
+            <p>Price: {{ product.price }}</p>
+            <img src="{{ product.photo.url }}" alt="Profile Photo" class="dropdown-trigger">
+        </div>
         {% endblock %}
         {% block options_and_controls %}
-        <input type="submit" value="Add to cart" />
+        <input type="submit" value="Add to cart" onclick="window.location.href='{% url 'sports24h:add_to_cart' product_id=product.id %}'" />
 	    {% endblock %}
     </body>
 </html>

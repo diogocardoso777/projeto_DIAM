@@ -9,44 +9,36 @@
     <link rel="stylesheet" type="text/css" href="{% static 'sports24h/styles.css' %}" />
 </head>
 <body>
-{% block content %}
-  <div class="post-detail">
-    <h2>{{ post.title }}</h2>
-    <p>Forum: {{ post.forum.name }}</p>
-    <p>{{ post.text }}</p>
-    <p>Created by: {{ post.owner.user.username }}</p>
-  </div>
-  <div class="add-comment">
-    <button type="button" class="addToProfile" onclick="toggleCommentForm()">Add Comment</button>
-  </div>
-  <form method="post" action="{% url 'sports24h:add_comment' %}">
-    {% csrf_token %}
-    <div class="comment-form" id="comment-form">
-      <input type="text" name="comment_text" placeholder="Enter your comment">
-      <input type="hidden" name="post_id" value="{{ post.id }}">
-      <button type="submit">Add Comment</button>
-    </div>
-  </form>
-  <h3>Comments</h3>
-  {% if comments %}
-    {% for comment in comments %}
-      <p>{{ comment.text }} - {{ comment.user }} - created_at - {{ comment.created_at }}</p>
-    {% endfor %}
-  {% else %}
-    <p><strong>No comments yet.</strong></p>
-  {% endif %}
+{% block header %}
+    <header>
+        <div class="top">
+		    <h1>Sports24h</h1>
+        {% csrf_token %}
+        </div>
+	</header>
 {% endblock %}
-
-<script>
-  function toggleCommentForm() {
-    var commentForm = document.getElementById("comment-form");
-    if (commentForm.style.display === "none") {
-      commentForm.style.display = "block";
-    } else {
-      commentForm.style.display = "none";
-    }
-  }
-</script>
-
+{% block content %}
+    <form id="login" action="{% url 'sports24h:login_user' %}" method="post">
+        {% csrf_token %}
+        <h1>Introduza os seus dados para efetuar o login: </h1>
+        <p></p>
+        <label> Nome de utilizador:</label>
+        <input type="text" name="username" value="" >
+        <label> Password:</label>
+        <input type="password" name="password" value="">
+        <p></p>
+    </form>
+    {% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+    <form id="registo" action="{% url 'sports24h:register_user' %}" >
+        {% csrf_token %}
+    </form>
+    {% endblock %}
+    {% block options_and_controls %}
+    <input type="submit" value="Login" form="login"/>
+    <p>Ainda não possui uma conta registada?</p>
+    <input type="submit" value="Registar" form="registo">
+    {% endblock %}
 </body>
 </html>

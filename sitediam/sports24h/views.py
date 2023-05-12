@@ -24,25 +24,42 @@ from django.urls import reverse, reverse_lazy
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
 def index(request):         # TODO mostrar apenas artigos ativos
     post_list = Post.objects.order_by('-created_at')
-    liked_posts = Post.objects.none()
-    if request.user.is_authenticated:
-        try:
-            u = Client.objects.get(user=request.user)
-            liked_posts = Post.objects.filter(likes__user=request.user)
-        except Client.DoesNotExist:
-            u = Seller.objects.get(user=request.user)
-        product_list = Product.objects.order_by('-created_at')
-        context = {
-            'post_list': post_list,
-            'product_list': product_list,
-            'user': u,
-            'liked_posts': liked_posts,
-        }
-        return render(request, 'sports24h/index.html', context)
-    else:
-        return render(request, 'sports24h/login.html')
+    liked_posts = Post.objects.filter(likes__user=request.user)
+    product_list = Product.objects.order_by('-created_at')
+    context = {
+        'post_list': post_list,
+        'product_list': product_list,
+        'user': request.user,
+        'liked_posts': liked_posts,
+    }
+    return render(request, 'sports24h/index.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def posts_index(request):         # TODO mostrar apenas artigos ativos
+    post_list = Post.objects.order_by('-created_at')
+    liked_posts = Post.objects.filter(likes__user=request.user)
+    product_list = Product.objects.order_by('-created_at')
+    context = {
+        'post_list': post_list,
+        'product_list': product_list,
+        'user': request.user,
+        'liked_posts': liked_posts,
+    }
+    return render(request, 'sports24h/posts_index.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def products_index(request):         # TODO mostrar apenas artigos ativos
+    product_list = Product.objects.order_by('-created_at')
+    context = {
+        'product_list': product_list,
+        'user': request.user,
+    }
+    return render(request, 'sports24h/products_index.html', context)
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
@@ -356,11 +373,9 @@ def register_user(request):
     u = User.objects.create_user(username=username, email=email, password=passwd)
 
     if user_type == 'client':
-        c = Client(user=u, birthdate=birthdate)
-        c.save()
+        c = Client.objects.create(user=u, birthdate=birthdate)
     elif user_type == 'seller':
-        s = Seller(user=u, birthdate=birthdate)
-        s.save()
+        s = Seller.objects.create(user=u, birthdate=birthdate)
     return HttpResponseRedirect(reverse('sports24h:login_user'))
 
 
@@ -468,13 +483,18 @@ def upload_photo(request):
         return render(request, 'sports24h/profile.html',
                       {'uploaded_file_status': "Please select a photo"})
     if request.method == 'POST' and request.FILES['myfile']:
-        fs = FileSystemStorage()
         myfile = request.FILES['myfile']
-        filename = fs.save(myfile.name, myfile)
-        c = Client.objects.get(user=request.user)
-        c.foto = "media/" + filename
-        c.save()
-        request.session['foto'] = c.foto
+        if Client.objects.filter(user=request.user).exists():
+            c = Client.objects.get(user=request.user)
+            c.photo.save(myfile.name, myfile)
+            c.save()
+            request.session['photo'] = c.photo.path
+        elif Seller.objects.filter(user=request.user).exists():
+            s = Seller.objects.get(user=request.user)
+            s.photo.save(myfile.name, myfile)
+            s.save()
+            request.session['photo'] = s.photo.path
+
         return render(request, 'sports24h/profile.html',
                       {'uploaded_file_status': "Photo updated successfully"})
 
