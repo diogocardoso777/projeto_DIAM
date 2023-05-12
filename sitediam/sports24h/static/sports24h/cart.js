@@ -46,4 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         totalAmount.textContent = '$' + total.toFixed(2);
     }
+
+    // Call the function immediately after the page loads.
+    updateTotalAmount();
 });
