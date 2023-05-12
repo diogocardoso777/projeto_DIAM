@@ -3,6 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+     <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px; /* Adjust this value to what works best for you */
+        }
+
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        #modal-message {
+            word-wrap: break-word;
+        }
+    </style>
+
+    <script>
+     function displayFormModal() {
+        var modal = document.getElementById('formModal');
+        var span = document.getElementsByClassName('close')[1]; // The second close button
+
+        modal.style.display = 'block';
+
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    }
+
+        function displayMessage(message) {
+            var modal = document.getElementById('myModal');
+            var span = document.getElementsByClassName('close')[0];
+            document.getElementById('modal-message').textContent = message;
+
+            modal.style.display = 'block';
+
+            span.onclick = function() {
+                modal.style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+    </script>
 </head>
 <body>
 {% extends 'sports24h/index.html' %}
@@ -13,7 +84,8 @@
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
-
+<button onclick="displayFormModal()">Enviar mensagem para outro utilizador</button>
+<a href="http://127.0.0.1:8000/sports24h/send_message/" class="btn btn-primary">Mensagens Recebidas</a>
     <h1>Mensagens Enviadas:</h1>
     {% if messages %}
       <table style="width:100%; border-collapse: collapse;">

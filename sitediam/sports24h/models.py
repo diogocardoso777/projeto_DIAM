@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import F
 
 # Create your models here.
 
@@ -105,6 +106,8 @@ class Message(models.Model):
         return f'{self.sender.username} -> {self.recipient.username}: {self.content[:30]}'
 
 
+from django.db.models import F
+
 class Post(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
@@ -112,6 +115,27 @@ class Post(models.Model):
     text = models.TextField()
     likes_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=datetime.now)
+
+    def save(self, *args, **kwargs):
+        # Check if the post is being created, not updated.
+        if self._state.adding:
+            super().save(*args, **kwargs)  # Save the post first.
+
+            # Get the owner's User instance.
+            owner_user = User.objects.get(id=self.owner.user_id)
+
+            # Get all the followers of the owner's user.
+            followers = Follows.objects.filter(followed_user=owner_user)
+
+            # For each follower, create a new message.
+            for follower in followers:
+                Message.objects.create(
+                    sender=owner_user,
+                    recipient=follower.following_user,
+                    content=f"New post from {owner_user.username}"
+                )
+        else:
+            super().save(*args, **kwargs)  # Save the post without creating messages.
 
 
 class Comment(models.Model):
