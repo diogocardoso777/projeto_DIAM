@@ -17,6 +17,7 @@
         {% endblock %}
         {% block options_and_controls %}
         <input type="submit" value="Add to cart" onclick="window.location.href='{% url 'sports24h:add_to_cart' product_id=product.id %}'" />
+        {% if
 	    {% endblock %}
     </body>
 </html>
