@@ -1,0 +1,43 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Posts</title>
+    {% endblock %}
+</head>
+<body>
+	{% block content %}
+	<main>
+		<section>
+			<div class="create_post">
+				<a href="{% url 'sports24h:create_post' %}">Create new Post</a>
+			</div>
+		</section>
+		<section>
+			<h2>Latest Posts</h2>
+			{% for post in post_list %}
+			<div class="post">
+			  <a id="post" href="{% url 'sports24h:post_detail' post_id=post.id %}">
+				<h3>{{ post.title }}</h3>
+				<p>{{ post.text }}</p>
+			  </a>
+			  <div class="options">
+				<a href="#">Comment</a>
+				<a href="{% url 'sports24h:like' post_id=post.id %}">
+				  {% if post in liked_posts %}
+					Dislike {{ post.likes_count }}
+				  {% else %}
+					Like {{ post.likes_count }}
+				  {% endif %}
+				</a>
+			  </div>
+			</div>
+			{% endfor %}
+			<!-- more user-generated posts -->
+		</section>
+	</main>
+	{% endblock %}
+</body>
+</html>

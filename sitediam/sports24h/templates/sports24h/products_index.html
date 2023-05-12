@@ -1,0 +1,37 @@
+{% extends "sports24h/index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Products</title>
+    {% endblock %}
+</head>
+<body>
+	{% block content %}
+	<main>
+		<section>
+			<div class="create_post">
+				<a href="{% url 'sports24h:create_product' %}">Create new Product</a>
+			</div>
+		</section>
+		<section>
+			<h2>Featured Products</h2>
+			{% for product in product_list %}
+    			<div class="post">
+					<a id="product" href="{% url 'sports24h:product_detail' product_id=product.id %}">
+						<h3>{{ product.name }}</h3>
+						<img src="{{ product.photo.url }}">
+						<p>Size: {{ product.size.name }}</p>
+						<p>Forum: {{ product.forum.name }}</p>
+						<p>Price: {{ product.price }}</p>
+						<a href="{% url 'sports24h:add_to_cart' product_id=product.id %}">Add to cart</a>
+					</a>
+    			</div>
+			{% endfor %}
+			<!-- more featured products -->
+		</section>
+	</main>
+	{% endblock %}
+</body>
+</html>

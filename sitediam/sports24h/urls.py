@@ -7,6 +7,10 @@ app_name = 'sports24h'
 urlpatterns = [
     path("", views.index, name="index"),
 
+    path("posts_index", views.posts_index, name="posts_index"),
+
+    path("products_index", views.products_index, name="products_index"),
+
     path("register", views.register_user, name="register_user"),
 
     path("login", views.login_user, name="login_user"),
