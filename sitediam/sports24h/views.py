@@ -20,7 +20,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
-
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 
 
@@ -81,7 +80,15 @@ def post(request):
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))  # TODO permitir seller ter acesso a esta view
+@login_required(login_url=reverse_lazy('sports24h:login_user'))    # TODO permitir apenas seller ter acesso a esta view
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if post.owner.user == request.user:
+        post.delete()
+    return redirect('sports24h:index')
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))  # TODO permitir apenas seller ter acesso a esta view
 def product(request):
     if not request.method == 'POST':
         forum_list = Forum.objects.order_by('-name')
@@ -100,14 +107,21 @@ def product(request):
         seller = Seller.objects.get(user=request.user)
         s = Size.objects.get(name=size)
         f = Forum.objects.get(name=forum)
-        p = Product(owner=seller, name=name, size=s, photo=photo, price=price, forum=f)
-        p.save()
+        p = Product.objects.create(owner=seller, name=name, size=s, photo=photo, price=price, forum=f)
         return HttpResponseRedirect(reverse('sports24h:index'))
     else:
         context = {
             'error_message': "Please, check if the fields are correctly filled.",
         }
         return render(request, 'sports24h/product.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))    # TODO permitir apenas seller ter acesso a esta view
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if product.owner.user == request.user:
+        product.delete()
+    return redirect('sports24h:index')
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
