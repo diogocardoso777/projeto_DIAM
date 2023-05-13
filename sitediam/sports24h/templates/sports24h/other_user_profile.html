@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+{% extends "sports24h/index.html" %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+</head>
+<body>
+{% block content %}
+
+<div class="profile">
+    <p><Strong>Username: </Strong>{{ user.username }}</p>
+    <p><Strong>Email: </Strong>{{ user.email }}</p>
+    <p><Strong>Birthdate: </Strong>{{ user_information.birthdate }}</p>
+    <p><Strong>Country: </Strong>{{ user_information.country.name }}</p>
+    <p><Strong>Favorite Team: </Strong>{{ user_information.favorite_team.name }}<strong> - </strong>{{user_information.favorite_team.country.name}}</p>
+    <p><Strong>Favorite Sport: </Strong>{{ user_information.sport.name }}</p>
+    <p><Strong>Number of Followers: </Strong>{{ nr_followers }}</p>
+</div>
+    {% endblock %}
+</body>
+</html>

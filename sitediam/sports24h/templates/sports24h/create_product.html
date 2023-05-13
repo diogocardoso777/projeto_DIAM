@@ -33,6 +33,11 @@
         <p></p>
     </form>
     {% endblock %}
+    {% block error_messages %}
+    {% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+	{% endblock %}
 
     {% block options_and_controls %}
     <input type="submit" value="Submeter" form="post"/>

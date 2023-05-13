@@ -25,6 +25,11 @@
         <p></p>
     </form>
     {% endblock %}
+	{% block error_messages %}
+    {% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+	{% endblock %}
 
 </body>
 </html>

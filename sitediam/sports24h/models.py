@@ -121,13 +121,9 @@ class Post(models.Model):
         if self._state.adding:
             super().save(*args, **kwargs)  # Save the post first.
 
-            # Get the owner's User instance.
             owner_user = User.objects.get(id=self.owner.user_id)
-
-            # Get all the followers of the owner's user.
             followers = Follows.objects.filter(followed_user=owner_user)
 
-            # For each follower, create a new message.
             for follower in followers:
                 Message.objects.create(
                     sender=owner_user,
@@ -135,7 +131,7 @@ class Post(models.Model):
                     content=f"New post from {owner_user.username}"
                 )
         else:
-            super().save(*args, **kwargs)  # Save the post without creating messages.
+            super().save(*args, **kwargs)
 
 
 class Comment(models.Model):
@@ -161,10 +157,14 @@ class ShoppingCart(models.Model):
     product_list = models.ManyToManyField("Product")
 
 
+
 class Review(models.Model):
-    summary = models.CharField(max_length=50)
-    text = models.TextField()
     client = models.ForeignKey("Client", on_delete=models.CASCADE)
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     created_at = models.DateTimeField(default=datetime.now)
+
+
+class BoughtProducts(models.Model):
+    client = models.OneToOneField("Client", on_delete=models.CASCADE, primary_key=True)
+    product_list = models.ManyToManyField("Product")

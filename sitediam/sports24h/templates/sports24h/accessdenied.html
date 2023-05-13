@@ -7,7 +7,7 @@
     <title>Access Denied</title>
     {% endblock %}
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'votacao/style.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'sports24h/style.css' %}" />
 </head>
 <body>
 {% block content %}
@@ -15,7 +15,7 @@
     <p>You do not have permission to access this page.</p>
 {% endblock %}
 {% block options_and_controls %}
-    <a href="{% url 'votacao:index' %}">Go to Homepage</a>
+    <a href="{% url 'sports24h:index' %}">Go to Homepage</a>
 {% endblock %}
 
 </body>

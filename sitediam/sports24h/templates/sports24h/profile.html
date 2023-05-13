@@ -1,6 +1,5 @@
-
-<!DOCTYPE html>
 {% extends "sports24h/index.html" %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,59 +42,95 @@
                 document.getElementsByClassName("country-input")[0].style.display = "block";
             }
         </script>
-        {% if request.user.favorite_team %}
-        <p>Equipa Favorita :   {{request.user.favorite_team.name}}</p>
-        <p>Pais da Equipa Favorita :   {{request.user.favorite_team.country.name}}</p>
-        <form method="post" action="{% url 'sports24h:set_favoriteTeam' %}">
-            {% csrf_token %}
-            <button type="button" class="addToProfile" onclick="showInputFavoriteTeam()">Mudar Equipa Favorita</button>
-            <div class="favorite_team-input" style="display:none">
-                <label for="teamCountry">Pais Da Equipa:</label>
-                <input type="text" name="teamCountry" id="teamCountry2">
-                <label for="teamName">Nome Da Equipa:</label>
-                <input type="text" name="teamName" id="teamName2">
-                <button type="submit">Save</button>
-            </div>
-        </form>
-        {% else %}
-        <form method="post" action="{% url 'sports24h:set_favoriteTeam' %}">
-            {% csrf_token %}
-            <button type="button" class="addToProfile" onclick="showInputFavoriteTeam()">Adicionar Equipa Favorita</button>
-            <div class="favorite_team-input" style="display:none">
-                <label for="teamCountry">Pais Da Equipa:</label>
-                <input type="text" name="teamCountry" id="teamCountry">
-                <label for="teamName">Nome Da Equipa:</label>
-                <input type="text" name="teamName" id="teamName">
-                <button type="submit">Save</button>
-            </div>
-        </form>
-        {% endif %}
+        {% if c.favorite_team %}
+<!-- Display the current favorite team -->
+<p>Favorite Team: {{ c.favorite_team.name }}</p>
+<p>Favorite Team Country: {{ c.favorite_team.country.name }}</p>
+<form method="post" action="{% url 'sports24h:set_favoriteTeam' %}">
+    {% csrf_token %}
+    <button type="button" class="addToProfile" onclick="showInputFavoriteTeam()">Change Favorite Team</button>
+    <div class="favorite_team-input" style="display: none;">
+        <label for="teamCountry">Team Country:</label>
+        <select name="teamCountry" id="teamCountry2">
+            {% for team in teams %}
+            <option value="{{ team.country.name }}" >{{ team.country.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="teamName">Team Name:</label>
+        <select name="teamName" id="teamName2">
+            {% for team in teams %}
+            <option value="{{ team.name }}" >{{ team.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Save</button>
+    </div>
+</form>
+{% else %}
+<!-- No favorite team selected -->
+<form method="post" action="{% url 'sports24h:set_favoriteTeam' %}">
+    {% csrf_token %}
+    <button type="button" class="addToProfile" onclick="showInputFavoriteTeam()">Add Favorite Team</button>
+    <div class="favorite_team-input" style="display: none;">
+        <label for="teamCountry">Team Country:</label>
+        <select name="teamCountry" id="teamCountry">
+            {% for team in teams %}
+            <option value="{{ team.country.name }}">{{ team.country.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="teamName">Team Name:</label>
+        <select name="teamName" id="teamName">
+            {% for team in teams %}
+            <option value="{{ team.name }}">{{ team.name }}</option>l
+            {% endfor %}
+        </select>
+        <button type="submit">Save</button>
+    </div>
+</form>
+{% endif %}
 
         <script>
             function showInputFavoriteTeam() {
                 document.getElementsByClassName("favorite_team-input")[0].style.display = "block";
             }
         </script>
-        {% if request.user.favorite_sport %}
-        <p>Desporto Favorita :   {{request.user.favorite_sport.name}}</p>
-        <form method="post" action="{% url 'sports24h:set_favoriteSport' %}" >
-            {% csrf_token %}
-            <button type="button" class="addToProfile" onclick="showInputFavoriteSport()">Mudar Desporto Favorita</button>
-            <div class="favorite_sport-input" style="display:none">
-                <input type="text" name="sportName">
-                <button type="submit">Save</button>
-            </div>
-        </form>
-        {% else %}
-        <form method="post" action="{% url 'sports24h:set_favoriteSport' %}" >
-            {% csrf_token %}
-            <button type="button" class="addToProfile" onclick="showInputFavoriteSport()">Adicionar Desporto Favorita</button>
-            <div class="favorite_sport-input" style="display:none">
-                <input type="text" name="sportName">
-                <button type="submit">Save</button>
-            </div>
-        </form>
-        {% endif %}
+        <!-- Favorite Sport form -->
+{% if c.favorite_sport %}
+<!-- Display the current favorite sport -->
+<p>Favorite Sport: {{ c.favorite_sport.name }}</p>
+<form method="post" action="{% url 'sports24h:set_favoriteSport' %}">
+    {% csrf_token %}
+    <button type="button" class="addToProfile" onclick="showInputFavoriteSport()">Change Favorite Sport</button>
+    <div class="favorite_sport-input" style="display: none;">
+        <select name="sportName">
+            {% for sport in sports %}
+            <option value="{{ sport.name }}" {% if sport.name == c.favorite_sport.name %}selected{% endif %}>{{ sport.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Save</button>
+    </div>
+</form>
+{% else %}
+<!-- No favorite sport selected -->
+<form method="post" action="{% url 'sports24h:set_favoriteSport' %}">
+    {% csrf_token %}
+    <button type="button" class="addToProfile" onclick="showInputFavoriteSport()">Add Favorite Sport</button>
+    <div class="favorite_sport-input" style="display: none;">
+        <select name="sportName">
+            {% for sport in sports %}
+            <option value="{{ sport.name }}">{{ sport.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Save</button>
+    </div>
+</form>
+{% endif %}
+
+<script>
+    function showInputFavoriteSport() {
+        document.getElementsByClassName("favorite_sport-input")[0].style.display = "block";
+    }
+</script>
+
 
         <script>
             function showInputFavoriteSport() {
@@ -107,29 +142,37 @@
 
     <form id="upload" method="post" enctype="multipart/form-data"  action="{% url 'sports24h:upload_photo' %}">
         {% csrf_token %}
-
-        <input type="file" name="myfile">
+<div class="file_upload_container">
+    <input type="file" id="file" class="get_file" name="myfile">
+    <label for="file" class="file_label">Choose file</label>
+</div>
         <p></p>
     </form>
-    <form id="reset" action="{% url 'sports24h:reset_foto' %}">
-        {% csrf_token %}
-        <p></p>
-    </form>
-    {% if uploaded_file_status %}
-    <p><strong>{{ uploaded_file_status }}</strong></p>
-    {% endif %}
-    {% endblock %}
-
-    {% block options_and_controls %}
-    <input type="submit" value="Atualizar foto" form="upload">
+    <form id="reset" action="{% url 'sports24h:reset_photo' %}">
+    {% csrf_token %}
     <p></p>
-    <input type="submit" value="Remover foto" form="reset">
-    {% endblock %}
-    {% block error_messages %}
-    {% if error_message %}
-    <p><strong>{{ error_message }}</strong></p>
-    {% endif %}
-    </div>
-    {% endblock %}
+</form>
+{% if uploaded_file_status %}
+<p><strong>{{ uploaded_file_status }}</strong></p>
+{% endif %}
+{% endblock %}
+
+{% block options_and_controls %}
+<div class="options-and-controls">
+    <input type="submit" value="Update photo" form="upload" class="button">
+    <p></p>
+    <input type="submit" value="Remove photo" form="reset" class="button">
+    <p></p>
+    <input type="submit" value="Delete Account" form="reset" class="button">
+</div>
+{% endblock %}
+
+{% block error_messages %}
+{% if error_message %}
+<p><strong>{{ error_message }}</strong></p>
+{% endif %}
+</div>
+{% endblock %}
+
 </body>
 </html>

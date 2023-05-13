@@ -1,10 +1,20 @@
-
 <!DOCTYPE html>
 {% extends "sports24h/index.html" %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Product Detail {{ product.id }}</title>
+    <style>
+        .add-to-cart {
+            display: inline-block;
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-decoration: none;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
     <body>
         {% block content %}
@@ -14,11 +24,12 @@
             <p>Forum: {{ product.forum.name }}</p>
             <p>Price: {{ product.price }}</p>
             <img src="{{ product.photo.url }}" alt="Profile Photo" class="dropdown-trigger">
+            <p>Average rating = {{ average_rating }}</p>
+            <a href="{% url 'sports24h:add_to_cart' product_id=product.id %}" class="add-to-cart">Add to cart</a>
+            {% if is_owner %}
+            <input type="submit" value="Delete" onclick="window.location.href='{% url 'sports24h:delete_product' %}'" />
+            {% endif %}
         </div>
         {% endblock %}
-        {% block options_and_controls %}
-        <input type="submit" value="Add to cart" onclick="window.location.href='{% url 'sports24h:add_to_cart' product_id=product.id %}'" />
-        {% if
-	    {% endblock %}
     </body>
 </html>

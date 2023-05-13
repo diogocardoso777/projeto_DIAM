@@ -8,36 +8,59 @@
     {% endblock %}
 </head>
 <body>
-	{% block content %}
-	<main>
-		<section>
-			<div class="create_post">
-				<a href="{% url 'sports24h:create_post' %}">Create new Post</a>
-			</div>
-		</section>
-		<section>
-			<h2>Latest Posts</h2>
-			{% for post in post_list %}
-			<div class="post">
-			  <a id="post" href="{% url 'sports24h:post_detail' post_id=post.id %}">
-				<h3>{{ post.title }}</h3>
-				<p>{{ post.text }}</p>
-			  </a>
-			  <div class="options">
-				<a href="#">Comment</a>
-				<a href="{% url 'sports24h:like' post_id=post.id %}">
-				  {% if post in liked_posts %}
-					Dislike {{ post.likes_count }}
-				  {% else %}
-					Like {{ post.likes_count }}
-				  {% endif %}
-				</a>
-			  </div>
-			</div>
-			{% endfor %}
-			<!-- more user-generated posts -->
-		</section>
-	</main>
-	{% endblock %}
+    {% block content %}
+    <script>
+        function toggleCommentForm(postId) {
+            console.log("Toggle comment form for post:", postId);
+            const commentForm = document.getElementById("comment-form-" + postId);
+            const commentButton = document.getElementById("button-add-comment-" + postId);
+
+            commentForm.style.display = "block";
+            commentButton.style.display = "none";
+        }
+    </script>
+    <main>
+        <section>
+            {% if is_seller %}
+                <div class="create_post">
+                    <a href="{% url 'sports24h:create_post' %}">Create new Post</a>
+                </div>
+            {% endif %}
+        </section>
+        <section>
+            <h2>Latest Posts</h2>
+            {% for post in post_list %}
+                <div class="post">
+                    <a id="post" href="{% url 'sports24h:post_detail' post_id=post.id %}">
+                        <h3>{{ post.title }} by {{ post.owner.user.username }}</h3>
+                        <p>{{ post.text }}</p>
+                    </a>
+                    <div class="options">
+                        <div class="add-comment">
+                            <button type="button" id="button-add-comment-{{ post.id }}" onclick="toggleCommentForm('{{ post.id }}')">Comment</button>
+                        </div>
+                        <form method="post" action="{% url 'sports24h:add_comment' %}">
+                            {% csrf_token %}
+                            <div class="comment-form" id="comment-form-{{ post.id }}">
+                                <input type="text" name="comment_text" placeholder="Enter your comment">
+                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                <button type="submit">Add Comment</button>
+                            </div>
+                        </form>
+                        <a href="{% url 'sports24h:like' post_id=post.id %}">
+                            {% if post in liked_posts %}
+                                Dislike {{ post.likes_count }}
+                            {% else %}
+                                Like {{ post.likes_count }}
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+            <!-- more user-generated posts -->
+        </section>
+    </main>
+    {% endblock %}
+
 </body>
 </html>

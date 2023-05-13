@@ -1,0 +1,96 @@
+{% extends 'sports24h/index.html' %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+    /* Global styles */
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        align-content: center;
+    }
+
+    h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    li {
+        background-color: #fff;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    p {
+        margin-bottom: 10px;
+    }
+
+    img {
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .product {
+        width: calc(33.33% - 20px); /* Adjust the width as needed */
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <section>
+        {% if request.session.user_type == 'seller' %}
+
+        {% endif %}
+    </section>
+    <section>
+        <h2>My Products</h2>
+        <div class="product-grid">
+            {% for item in sp_items %}
+            <div class="product">
+                <h3>{{ item.name }}</h3>
+                <p>Price: {{ item.price }}</p>
+                <img src="{{ item.photo.url }}" alt="{{ item.name }}">
+                <!-- add more details here -->
+            </div>
+            {% empty %}
+            <div class="product">
+                <p>No products available.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+{% extends "sports24h/index.html" %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}
+    <title>Products</title>
+    {% endblock %}
+    <style>
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .product {
+            width: calc(33.33% - 20px); /* Adjust the width as needed */
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+    <main>
+        <section>
+            <h2>Bought Products</h2>
+            <div class="product-grid">
+                {% for product in unreviewed_products %}
+                <div class="product">
+                    <a id="product" href="{% url 'sports24h:product_detail' product_id=product.id %}">
+                        <h3>{{ product.name }}</h3>
+                        <img src="{{ product.photo.url }}">
+                        <p>Size: {{ product.size.name }}</p>
+                        <p>Forum: {{ product.forum.name }}</p>
+                        <p>Price: {{ product.price }}</p>
+                        </a>
+                        <form method="POST" action="{% url 'sports24h:add_review' product_id=product.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <p></p>
+    <input type="number" min="1" name="rating_value" max="5">
+    <button class="add_review" type="submit">Add review</button>
+</form>
+                </div>
+                {% empty %}
+                <p>You have no products to review.</p>
+                {% endfor %}
+                {% for product in reviewed_products %}
+                <div class="product">
+                    <a href="{% url 'sports24h:product_detail' product_id=product.id %}">
+                        <h3>{{ product.name }}</h3>
+                        <img src="{{ product.photo.url }}">
+                        <p>Size: {{ product.size.name }}</p>
+                        <p>Forum: {{ product.forum.name }}</p>
+                        <p>Price: {{ product.price }}</p>
+                        </a>
+                        <p>Already reviewed</p>
+                </div>
+                {% empty %}
+                <p>You haven't reviewed any products.</p>
+                {% endfor %}
+            </div>
+            <!-- more featured products -->
+        </section>
+    </main>
+    {% endblock %}
+</body>
+</html>

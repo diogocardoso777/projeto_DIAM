@@ -43,6 +43,9 @@
       <p><strong>No comments yet.</strong></p>
     {% endif %}
   </div>
+        {% if is_owner %}
+        <input type="submit" value="Delete" onclick="window.location.href='{% url 'sports24h:delete_product' %}'" />
+        {% endif %}
 {% endblock %}
 </body>
 </html>

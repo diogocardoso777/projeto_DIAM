@@ -26,12 +26,16 @@ urlpatterns = [
 
     path("create_post", views.post, name="create_post"),
 
+    path("delete_post", views.delete_post, name="delete_post"),
+
     # post/1  - detail
     path("post/<int:post_id>", views.post_detail, name="post_detail"),
 
     path("add_comment", views.add_comment, name="add_comment"),
 
     path("create_product", views.product, name="create_product"),
+
+    path("delete_product", views.delete_product, name="delete_product"),
 
     # product/1  - detail
     path("product/<int:product_id>", views.product_detail, name="product_detail"),
@@ -67,7 +71,7 @@ urlpatterns = [
     # set favoriteSport
     path('set_favoriteSport', views.set_favoriteSport, name='set_favoriteSport'),
     # reset foto
-    path('reset_foto', views.reset_foto, name='reset_foto'),
+    path('reset_photo', views.reset_photo, name='reset_photo'),
 
     # shopping cart
     path('shopping_cart', views.shopping_cart, name='shopping_cart'),
@@ -93,4 +97,13 @@ urlpatterns = [
     path('follow_user', views.follow_user, name='follow_user'),
 
     path('unfollow_user', views.unfollow_user, name='unfollow_user'),
+
+    path('admin', views.admin, name='admin'),
+
+    path('acess_denied', views.access_denied, name='access_denied'),
+
+    path('api/posts/', views.post_list),
+    path('api/posts/<int:pk>', views.post_detail),
+    path('api/comments/', views.comment_list),
+    #path('api/opcoes/<int:pk>', views.opcoes_edita),
 ]
