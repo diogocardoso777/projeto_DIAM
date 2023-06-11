@@ -102,8 +102,10 @@ urlpatterns = [
 
     path('acess_denied', views.access_denied, name='access_denied'),
 
+    path('delete_account', views.delete_account, name='delete_account'),
+
     path('api/posts/', views.post_list),
     path('api/posts/<int:pk>', views.post_detail),
     path('api/comments/', views.comment_list),
-    #path('api/opcoes/<int:pk>', views.opcoes_edita),
+
 ]
