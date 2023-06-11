@@ -13,6 +13,11 @@
 {% block content %}
     <h1>Access Denied</h1>
     <p>You do not have permission to access this page.</p>
+
+{% if error_message %}
+    <p> {{ error_message }}</p>
+{% endif %}
+
 {% endblock %}
 {% block options_and_controls %}
     <a href="{% url 'sports24h:index' %}">Go to Homepage</a>

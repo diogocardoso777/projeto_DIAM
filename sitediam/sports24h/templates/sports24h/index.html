@@ -52,11 +52,11 @@
   					<img class="shopping_cart" src="{% static 'media/shopping-cart.png' %}" alt="Shopping Cart">
 				</a>
 				{% if request.session.photo %}
-				<img src="{{ request.session.photo|default:'#' }}" alt="Profile Photo" class="dropdown-trigger">
+				<img style="border-radius: 50%" src="{{ request.session.photo|default:'#' }}" alt="Profile Photo" class="dropdown-trigger">
 				{% else %}
-				<img src="{% static 'media/users/default-user-icon.png' %}" alt="Profile Photo" class="dropdown-trigger">
+				<img style="border-radius: 50%" src="{% static 'media/users/default-user-icon.png' %}" alt="Profile Photo" class="dropdown-trigger">
 				{% endif %}
-				<p>{{ request.user.username }}</p>
+				<p style="text-align: right;">{{ request.user.username }}</p>
                 <div class="dropdown-menu">
                     <a href="{% url 'sports24h:profile' %}">{{ request.user.username }}</a>
                     <form action="{% url 'sports24h:logout_user' %}" method="post">

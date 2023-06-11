@@ -46,6 +46,9 @@
         {% if is_owner %}
         <input type="submit" value="Delete" onclick="window.location.href='{% url 'sports24h:delete_product' %}'" />
         {% endif %}
+    {% if error_message %}
+        <p> {{ error_message }}</p>
+    {% endif %}
 {% endblock %}
 </body>
 </html>

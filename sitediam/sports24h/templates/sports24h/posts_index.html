@@ -21,7 +21,7 @@
     </script>
     <main>
         <section>
-            {% if is_seller %}
+            {% if is_seller or request.user.is_superuser%}
                 <div class="create_post">
                     <a href="{% url 'sports24h:create_post' %}">Create new Post</a>
                 </div>

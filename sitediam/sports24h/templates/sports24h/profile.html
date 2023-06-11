@@ -87,15 +87,12 @@
     </div>
 </form>
 {% endif %}
-
         <script>
             function showInputFavoriteTeam() {
                 document.getElementsByClassName("favorite_team-input")[0].style.display = "block";
             }
         </script>
-        <!-- Favorite Sport form -->
 {% if c.favorite_sport %}
-<!-- Display the current favorite sport -->
 <p>Favorite Sport: {{ c.favorite_sport.name }}</p>
 <form method="post" action="{% url 'sports24h:set_favoriteSport' %}">
     {% csrf_token %}
@@ -163,7 +160,10 @@
     <p></p>
     <input type="submit" value="Remove photo" form="reset" class="button">
     <p></p>
-    <input type="submit" value="Delete Account" form="reset" class="button">
+    <form action="{% url 'sports24h:delete_account' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Delete Account" class="button">
+    </form>
 </div>
 {% endblock %}
 
@@ -171,8 +171,7 @@
 {% if error_message %}
 <p><strong>{{ error_message }}</strong></p>
 {% endif %}
-</div>
 {% endblock %}
-
+</div>
 </body>
 </html>
