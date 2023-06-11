@@ -1,21 +1,17 @@
 from datetime import date
-from django.core import serializers
 from django.contrib.auth.decorators import user_passes_test
-from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.core.files.storage import FileSystemStorage
 from django.core.validators import validate_email
 from django.db.models import Subquery
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from django.contrib import messages
-from .models import Message, Product, Size, ShoppingCart, Follows, Comment,  Likes
-from .models import Message, FollowsForum
-from .models import Post, Forum, Client, Seller, Country, Team, Sport
-from django.db import IntegrityError
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+from .models import Message, Product, Size, ShoppingCart, Follows, Comment, Likes, BoughtProducts, SellerProduct, Review,  FollowsForum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
@@ -23,7 +19,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
-from .serializers import PostSerializer, CommentSerializer
+from .serializers import PostSerializer, CommentSerializer, UserSerializer, OwnerSerializer
 
 from django.contrib.auth import get_user_model
 
@@ -36,29 +32,27 @@ def index(request):
         user_type = 'client'
     elif hasattr(request.user, 'seller'):
         user_type = 'seller'
-        is_seller = True  # If user is a seller, set is_seller as True
+        is_seller = True
 
     post_list = Post.objects.order_by('-created_at')
     liked_posts = Post.objects.filter(likes__user=request.user)
     product_list = Product.objects.order_by('-created_at')
 
-    # Get the forums that the client follows
+
     if user_type == 'client':
         User = get_user_model()
-        client_user = User.objects.get(client=request.user.client)  # Retrieve the User instance from the Client object
+        client_user = User.objects.get(client=request.user.client)
         followed_forums = FollowsForum.objects.filter(user=client_user)
 
-        # Get the posts from the followed forums
         followed_forums_post = []
         for forum in followed_forums:
             forum_posts = Post.objects.filter(forum=forum.forum)
             followed_forums_post += forum_posts
     else:
         User = get_user_model()
-        client_user = User.objects.get(seller=request.user.seller)  # Retrieve the User instance from the Client object
+        client_user = User.objects.get(seller=request.user.seller)
         followed_forums = FollowsForum.objects.filter(user=client_user)
 
-        # Get the posts from the followed forums
         followed_forums_post = []
         for forum in followed_forums:
             forum_posts = Post.objects.filter(forum=forum.forum)
@@ -70,7 +64,7 @@ def index(request):
         'user': request.user,
         'is_seller': is_seller,
         'liked_posts': liked_posts,
-        'followed_forums_post': followed_forums_post,  # Add followed forums posts to the context
+        'followed_forums_post': followed_forums_post,
     }
 
     return render(request, 'sports24h/index.html', context)
@@ -81,11 +75,13 @@ def posts_index(request):         # TODO mostrar apenas artigos ativos
     post_list = Post.objects.order_by('-created_at')
     liked_posts = Post.objects.filter(likes__user=request.user)
     product_list = Product.objects.order_by('-created_at')
+    is_seller = Seller.objects.filter(user=request.user).exists()
     context = {
         'post_list': post_list,
         'product_list': product_list,
         'user': request.user,
         'liked_posts': liked_posts,
+        'is_seller': is_seller
     }
     return render(request, 'sports24h/posts_index.html', context)
 
@@ -93,9 +89,11 @@ def posts_index(request):         # TODO mostrar apenas artigos ativos
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def products_index(request):         # TODO mostrar apenas artigos ativos
     product_list = Product.objects.order_by('-created_at')
+    is_seller = Seller.objects.filter(user=request.user).exists()
     context = {
         'product_list': product_list,
         'user': request.user,
+        'is_seller': is_seller
     }
     return render(request, 'sports24h/products_index.html', context)
 
@@ -226,9 +224,6 @@ def unfollow_user(request):
     return redirect('sports24h:search_users')
 
 
-# handle invalid user_id value
-
-
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
@@ -261,6 +256,12 @@ def add_comment(request):
         comment_text = request.POST.get("comment_text")
         post_id = request.POST.get("post_id")
         post = Post.objects.get(pk=post_id)
+        if comment_text.contains('ola') or comment_text.contains('adeus') or comment_text.contains('aqui'):
+            context = {
+                'error_message': "Please, check if the fields are correctly filled.",
+            }
+            return render(request, 'sports24h/accessdenied.html', context)
+
         Comment.objects.create(user=request.user, post=post, text=comment_text)
         return redirect('sports24h:post_detail', post_id=post_id)
     else:
@@ -323,7 +324,7 @@ def team(request):
         }
         return render(request, 'sports24h/create_team.html', context)
     name = request.POST.get('name')
-    country = request.POST.get('country')
+    country = request.POST.get('countries')
     if name and country:
         t = Team(name=name, country=country)
         t.save()
@@ -416,7 +417,6 @@ def register_user(request):
         validate_email(email)
     except ValidationError:
         # Invalid email format
-        # Add an error message to the context and render the form again
         context = {
             'error_message': "Please introduce a valid e-mail.",
         }
@@ -424,7 +424,6 @@ def register_user(request):
 
     if len(passwd) < 8:
         # Password is too short
-        # Add an error message to the context and render the form again
         context = {
             'error_message': "Password should have at least 8 characters.",
         }
@@ -433,7 +432,6 @@ def register_user(request):
     birthdate = date.fromisoformat(birthdate_str)
     if (date.today() - birthdate).days < 365 * 18:
         # User is not yet 18 years old
-        # Add an error message to the context and render the form again
         context = {
             'error_message': "You must be 18 years or older.",
         }
@@ -478,7 +476,6 @@ def logout_user(request):
         return render(request, 'sports24h/logout.html')
     logout(request)
     request.session.flush()
-    # direccionar para página de sucesso
     return HttpResponseRedirect(reverse('sports24h:login_user'))
 
 
@@ -603,8 +600,16 @@ def upload_photo(request):
             s.save()
             request.session['photo'] = s.photo.url
 
-        return render(request, 'sports24h/profile.html',
-                      {'uploaded_file_status': "Photo updated successfully"})
+    followers_count = Follows.objects.filter(followed_user=request.user).count()
+    context = {
+        'nr_followers': followers_count,
+        'c': c,
+        'countries': Country.objects.all(),
+        'teams': Team.objects.all(),
+        'sports': Sport.objects.all(),
+        'uploaded_file_status': "Photo updated successfully"
+    }
+    return render(request, 'sports24h/profile.html', context)
 
 
 
@@ -641,20 +646,17 @@ def shopping_cart(request):
 @login_required(login_url=reverse_lazy('sports24h:login_user'))     # TODO fazer isto acesssivel apenas a users com @client
 def add_to_cart(request, product_id):
     if not hasattr(request.user, 'client'):
-        # Redirect or handle the case where the user is not a Client
         return HttpResponseRedirect(reverse('sports24h:index'))
 
     client = Client.objects.get(user=request.user)
     try:
         shopping_cart = ShoppingCart.objects.get(client=client)
     except ObjectDoesNotExist:
-        # Create a new ShoppingCart object for the client
         shopping_cart = ShoppingCart.objects.create(client=client)
 
     product = Product.objects.get(id=product_id)
     shopping_cart.product_list.add(product)
 
-    # Optionally, you can redirect the user to a success page or display a message
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
@@ -664,7 +666,6 @@ def remove_from_cart(request, product_id):
     product = Product.objects.get(id=product_id)
     shopping_cart.product_list.remove(product)
 
-    # Optionally, you can redirect the user to a success page or display a message
     return HttpResponseRedirect(reverse('sports24h:shopping_cart'))
 
 
@@ -676,10 +677,8 @@ def send_message_html(request):
     try:
         messages = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         messages = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         messages = paginator.page(paginator.num_pages)
 
     return render(request, 'sports24h/send_message.html', {'messages': messages})
@@ -693,10 +692,8 @@ def sent_messages_html(request):
     try:
         messages = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         messages = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         messages = paginator.page(paginator.num_pages)
 
     return render(request, 'sports24h/sent_messages.html', {'messages': messages})
@@ -720,7 +717,7 @@ def send_message_submit(request):
             recipient = User.objects.get(username=recipient_username)
             message = Message(sender=request.user, recipient=recipient, content=content)
             message.save()
-            return redirect('sports24h:index')  # Redirect to the main page after sending the message
+            return redirect('sports24h:index')
         except User.DoesNotExist:
             return render(request, 'sports24h/send_message.html', {'error': 'Destinatário não encontrado'})
 
@@ -734,7 +731,7 @@ def like(request, post_id):          # TODO restringir a instancias de clientes 
         like.delete()
         post.likes_count -= 1
     except ObjectDoesNotExist:
-        like = Likes.objects.create(user=request.user, post=post)
+        Likes.objects.create(user=request.user, post=post)
         post.likes_count += 1
     post.save()
     return redirect(request.META['HTTP_REFERER'])
@@ -745,7 +742,7 @@ def admin(request):
     return render(request, 'sports24h/admin_options.html')
 
 
-#### VIEW REACT
+#### VIEWS REACT
 @api_view(['GET', 'POST'])  # (3)
 def post_list(request):
     if request.method == 'GET':  # (4)
@@ -759,7 +756,7 @@ def post_list(request):
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@user_passes_test(seller_check, login_url=reverse_lazy('sports24h:access_denied'))
+
 @api_view(['PUT', 'DELETE'])
 def post_edita(request, pk):
     try:
@@ -790,21 +787,3 @@ def comment_list(request):
             serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @api_view(['PUT', 'DELETE'])
-# def opcoes_edita(request, pk):
-#     try:
-#         opcao = Opcao.objects.get(pk=pk)
-#     except Opcao.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#     if request.method == 'PUT':
-#         serializer = OpcaoSerializer(opcao, data=request.data, context={'request': request})
-#         if serializer.is_valid():
-#             opcao.votos = opcao.votos + 1
-#             opcao.save()
-#             # serializer.save()
-#             return Response(status=status.HTTP_204_NO_CONTENT)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     elif request.method == 'DELETE':
-#         opcao.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
