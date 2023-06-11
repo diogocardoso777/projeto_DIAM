@@ -35,7 +35,7 @@ class Forum(models.Model):
 class Client(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     birthdate = models.DateField()
-    photo = models.ImageField(upload_to="users", default="default-user-icon.png")
+    photo = models.ImageField(upload_to="users", default="users/default-user-icon.png")
     country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
     favorite_team = models.ForeignKey("Team", on_delete=models.CASCADE, null=True)
     favorite_sport = models.ForeignKey("Sport", on_delete=models.CASCADE, null=True)
@@ -53,13 +53,8 @@ class Seller(models.Model):
     nr_published_posts = models.IntegerField(default=0)
     nr_received_likes = models.IntegerField(default=0)
     verified = models.BooleanField(default=False)
-
-
-class Moderator(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    birthdate = models.DateField()
-    photo = models.ImageField(upload_to="users", default="default-user-icon.png")
-    country = models.ForeignKey("Country", on_delete=models.CASCADE, null=True)
+    favorite_team = models.ForeignKey("Team", on_delete=models.CASCADE, null=True)
+    favorite_sport = models.ForeignKey("Sport", on_delete=models.CASCADE, null=True)
 
 
 class Follows(models.Model):
@@ -106,8 +101,6 @@ class Message(models.Model):
         return f'{self.sender.username} -> {self.recipient.username}: {self.content[:30]}'
 
 
-from django.db.models import F
-
 class Post(models.Model):
     owner = models.ForeignKey("Seller", on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
@@ -117,9 +110,8 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=datetime.now)
 
     def save(self, *args, **kwargs):
-        # Check if the post is being created, not updated.
         if self._state.adding:
-            super().save(*args, **kwargs)  # Save the post first.
+            super().save(*args, **kwargs)
 
             owner_user = User.objects.get(id=self.owner.user_id)
             followers = Follows.objects.filter(followed_user=owner_user)
