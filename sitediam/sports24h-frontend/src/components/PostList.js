@@ -13,7 +13,7 @@ class PostList extends Component {
             <Table light> {/* (21) */}
                 <thead> {/* (22) */}
                 <tr>
-                    <th>Text</th>
+                    <th>Post</th>
                     <th>Creation date</th>
                     <th>Owner</th>
                     <th>Like count</th>
@@ -32,7 +32,7 @@ class PostList extends Component {
                         <tr key={post.pk}>
                             <td>{post.text}</td>
                             <td>{post.created_at}</td>
-                            <td>{post.owner.name}</td>
+                            <td>{post.owner?.user?.username || 'Unknown'}</td>
                             <td>{post.likes_count}</td>
 
                             <td align="center">

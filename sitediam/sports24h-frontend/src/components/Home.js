@@ -4,13 +4,13 @@ import PostList from "./PostList";
 
 import axios from "axios"; //(12)
 
-import { API_URL_POSTS, API_URL_COMMENTS } from "../constants";
+import {API_URL_POSTS, API_URL_COMMENTS, API_URL_USERS, API_URL_OWNERS} from "../constants";
 
 //(13)
 class Home extends Component { //(14)
  state = { //(15)
   posts: [],
-  comments: []
+  comments: [],
  };
 
  componentDidMount() { //(16)

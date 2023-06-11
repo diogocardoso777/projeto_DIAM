@@ -61,8 +61,8 @@ class DetailPostForm extends React.Component {
                     <Table>
                         <thead>
                         <tr>
-                            <th colSpan="6" align="left">Opção</th>
-                            <th colSpan="6" align="right">Votos</th>
+                            <th colSpan="6" align="left">Comment</th>
+                            <th colSpan="6" align="right">Creation Date</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -82,7 +82,7 @@ class DetailPostForm extends React.Component {
                                             {comment.text}
                                         </td>
                                         <td colSpan="6" align="right">
-                                            {comment.owner}
+                                            {comment.created_at}
                                         </td>
                                     </tr>
                                 ))
