@@ -22,7 +22,7 @@
                         <img src="{{ item.photo.url }}" alt="{{ item.name }}">
                         <div>
                             <h3>{{ item.name }}</h3>
-                            <p class="price">Price: ${{ item.price }}</p>
+                            <p class="price">Price: {{ item.price }}</p>
                             <div class="quantity">
                                 <button class="decrease-quantity" data-product-id="{{ item.id }}">-</button>
                                 <input type="number" class="quantity-input" value="1" min="1" data-product-id="{{ item.id }}">
@@ -34,7 +34,7 @@
                 {% endfor %}
                 <div class="cart-total">
                     <span>Total:</span>
-                    <span id="total-amount">$100.00</span> <!-- Replace with actual total -->
+                        <span id="total-amount"></span>
                 </div>
                 <div class="checkout">
                     <a href="#">Proceed to Checkout</a>
@@ -45,7 +45,7 @@
         </div>
     </section>
 </main>
-<script src="{% static 'sports24h/js/cart.js' %}"></script>
+<script src="{% static 'sports24h/cart.js' %}"></script>
 {% endblock %}
 
 {% block options_and_controls %}

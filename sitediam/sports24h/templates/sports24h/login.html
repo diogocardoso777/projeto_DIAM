@@ -2,43 +2,130 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    {% block title %}
-	<title>Login</title>
-	{% endblock %}
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'sports24h/styles.css' %}" />
+    <title>Login</title>
+    <style>
+        /* Global styles */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-content: center;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header .top {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        form h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        form p {
+            margin-bottom: 10px;
+        }
+
+        form label {
+            font-weight: bold;
+        }
+
+        form input[type=text],
+        form input[type=password] {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 10px;
+        }
+
+        input[type=submit] {
+            padding: 10px 20px;
+            background-color: #f00;
+            color: #fff;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        input[type=submit] {
+            width: 30%;
+            align-self: center;
+        }
+
+        .register-link {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-{% block header %}
-    <header>
-        <div class="top">
-		    <h1>Sports24h</h1>
-        {% csrf_token %}
-        </div>
-	</header>
-{% endblock %}
-{% block content %}
-    <form id="login" action="{% url 'sports24h:login_user' %}" method="post">
-        {% csrf_token %}
-        <h1>Introduza os seus dados para efetuar o login: </h1>
-        <p></p>
-        <label> Nome de utilizador:</label>
-        <input type="text" name="username" value="" >
-        <label> Password:</label>
-        <input type="password" name="password" value="">
-        <p></p>
-    </form>
-    {% if error_message %}
-    <p><strong>{{ error_message }}</strong></p>
-    {% endif %}
-    <form id="registo" action="{% url 'sports24h:register_user' %}" >
-        {% csrf_token %}
-    </form>
-    {% endblock %}
-    {% block options_and_controls %}
-    <input type="submit" value="Login" form="login"/>
+<header>
+    <div class="top">
+        <h1>Sports24h</h1>
+    </div>
+</header>
+<form id="login" action="" method="post">
+    {% csrf_token %}
+    <h1>Introduza os seus dados para efetuar o login:</h1>
+    <p></p>
+    <label>Nome de utilizador:</label>
+    <input type="text" name="username" value="">
+    <label>Password:</label>
+    <input type="password" name="password" value="">
+    <p></p>
+    <input type="submit" value="Login">
+</form>
+<div class="register-link">
     <p>Ainda não possui uma conta registada?</p>
-    <input type="submit" value="Registar" form="registo">
-    {% endblock %}
+</div>
+    <form id="registo" action="{% url 'sports24h:register_user' %}" >
+    {% csrf_token %}
+    <input type="submit" value="Registar">
+</form>
+{% if error_message %}
+<p><strong>{{ error_message }}</strong></p>
+{% endif %}
+
 </body>
 </html>

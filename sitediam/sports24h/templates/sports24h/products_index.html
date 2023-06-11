@@ -7,18 +7,68 @@
     <title>Products</title>
     {% endblock %}
     <style>
-        .product-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
+       /* Global styles */
 
-        .product {
-            width: calc(33.33% - 20px); /* Adjust the width as needed */
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        align-content: center;
+    }
+
+    h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    li {
+        background-color: #fff;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    p {
+        margin-bottom: 10px;
+    }
+
+    img {
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .product {
+        width: calc(33.33% - 20px); /* Adjust the width as needed */
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
     </style>
 </head>
 <body>
@@ -33,16 +83,16 @@
             <h2>Featured Products</h2>
             <div class="product-grid">
                 {% for product in product_list %}
-                <div class="product">
-                    <a id="product" href="{% url 'sports24h:product_detail' product_id=product.id %}">
-                        <h3>{{ product.name }}</h3>
-                        <img src="{{ product.photo.url }}">
-                        <p>Size: {{ product.size.name }}</p>
-                        <p>Forum: {{ product.forum.name }}</p>
-                        <p>Price: {{ product.price }}</p>
-                        <a href="{% url 'sports24h:add_to_cart' product_id=product.id %}">Add to cart</a>
-                    </a>
-                </div>
+                    <div class="product">
+                        <a id="product" href="{% url 'sports24h:product_detail' product_id=product.id %}">
+                            <h3>{{ product.name }}</h3>
+                            <img src="{{ product.photo.url }}">
+                            <p>Size: {{ product.size.name }}</p>
+                            <p>Forum: {{ product.forum.name }}</p>
+                            <p>Price: {{ product.price }}</p>
+                            <a href="{% url 'sports24h:add_to_cart' product_id=product.id %}">Add to cart</a>
+                        </a>
+                    </div>
                 {% endfor %}
             </div>
         </section>

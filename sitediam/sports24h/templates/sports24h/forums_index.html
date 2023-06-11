@@ -27,7 +27,8 @@
             <form method="POST" action="{% url 'sports24h:follow_forum' %}">
                 {% csrf_token %}
                 <input type="hidden" name="forum_id" value="{{ forum.id }}">
-                <button type="submit">Join forum</button>
+                <div><button class="join_forum" type="submit">Join forum</button></div>
+
             </form>
         </div>
         {% endfor %}

@@ -149,6 +149,10 @@ class ShoppingCart(models.Model):
     product_list = models.ManyToManyField("Product")
 
 
+class SellerProduct(models.Model):
+    s = models.OneToOneField("Seller", on_delete=models.CASCADE, primary_key=True)
+    product_list = models.ManyToManyField("Product", related_name="seller_products")
+
 
 class Review(models.Model):
     client = models.ForeignKey("Client", on_delete=models.CASCADE)

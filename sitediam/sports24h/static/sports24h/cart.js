@@ -37,15 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to update the total amount
     function updateTotalAmount() {
-        let total = 0;
-        document.querySelectorAll('.cart-item').forEach((item) => {
-            const price = parseFloat(item.querySelector('.price').textContent.replace('$', ''));
-            const quantity = parseInt(item.querySelector('.quantity-input').value);
-            const subtotal = price * quantity;
-            total += subtotal;
-        });
-        totalAmount.textContent = '$' + total.toFixed(2);
-    }
+    let total = 0;
+    document.querySelectorAll('.cart-item').forEach((item) => {
+        const price = parseFloat(item.querySelector('.price').textContent.replace('Price: ', ''));
+        const quantity = parseInt(item.querySelector('.quantity-input').value);
+        const subtotal = price * quantity;
+        total += subtotal;
+    });
+    totalAmount.textContent = '$' + total.toFixed(2);
+}
+
 
     // Call the function immediately after the page loads.
     updateTotalAmount();

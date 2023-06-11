@@ -8,7 +8,7 @@
 <body>
 {% block content %}
   <div class="post-detail">
-    <h2>{{ post.title }}</h2>
+    <h2>{{ post.title }} by {{ post.owner.user.username }}</h3></h2>
     <p>Forum: {{ post.forum.name }}</p>
     <p>{{ post.text }}</p>
     <p>Created by: {{ post.owner.user.username }}</p>

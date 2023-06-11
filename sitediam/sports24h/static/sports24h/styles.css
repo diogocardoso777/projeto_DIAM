@@ -96,6 +96,7 @@ h2 {
 .post .options{
     display: flex;
     justify-content: space-between;
+
 }
 
 .post h3 , .forum h3{
@@ -107,15 +108,46 @@ h2 {
 	margin-bottom: 10px;
 }
 
-.post a, .forum a , .create_post a, .create_forum a {
-	display: inline-block;
-	padding: 10px 20px;
-	background-color: #f00;
-	color: #fff;
-	border-radius: 5px;
-	text-decoration: none;
-	transition: all 0.3s ease;
+.post a, .forum a , .create_post a, .create_forum a, .join_forum, .get_file, .unfollow_forum,.add_review {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f00;
+    color: #fff;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
+.file_upload_container {
+    position: relative;
+    display: inline-block;
+}
+.product-image {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+
+.get_file {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.file_label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f00;
+    color: #fff;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
 
 .post a:hover, .forum a:hover {
 	background-color: #fff;

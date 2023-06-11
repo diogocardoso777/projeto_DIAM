@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     {% block title %}
-	<title>Register</title>
-	{% endblock %}
+    <title>Register</title>
+    {% endblock %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'sports24h/styles.css' %}" />
+    <style>
+        .required {
+            color: red;
+        }
+    </style>
 </head>
 <body>
 {% block header %}
     <header>
         <div class="top">
-		    <h1>Sports24h</h1>
+            <h1>Sports24h</h1>
         {% csrf_token %}
         </div>
-	</header>
+    </header>
 {% endblock %}
     {% block content %}
     <form id="register" action="{% url 'sports24h:register_user' %}" method="post">
@@ -28,18 +33,26 @@
             <input type="radio" name="user_type" value="seller" id="seller">
             <label for="seller">Seller</label>
         </div>
-        <label> Username: </label>
+        <label> Username<span class="required">*</span>: </label>
             <input type="text" name="username" value="" >
-        <label> E-mail: </label>
+        <label> E-mail<span class="required">*</span>: </label>
             <input type="email" name="email" value="" >
-        <label> Password:</label>
+        <label> Password<span class="required">*</span>:</label>
             <input type="password" name="password" value="" >
-        <label> Confirm Password:</label>
+        <label> Confirm Password<span class="required">*</span>:</label>
             <input type="password" name="confirm_password" value="" >
-        <label> Birthdate:</label>
+        <label> Birthdate<span class="required">*</span>:</label>
             <input type="date" name="birthdate" value="" >
         {% csrf_token %}
     </form>
+    <form id="upload" method="post" enctype="multipart/form-data"  action="{% url 'sports24h:upload_photo' %}">
+        {% csrf_token %}
+
+        <input type="file" name="myfile">
+        <p></p>
+    </form>
+    <input type="submit" value="Submeter foto" form="upload">
+
     {% if error_message %}
     <p><strong>{{ error_message }}</strong></p>
     {% endif %}

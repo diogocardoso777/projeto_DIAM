@@ -98,6 +98,7 @@ def products_index(request):         # TODO mostrar apenas artigos ativos
     return render(request, 'sports24h/products_index.html', context)
 
 
+@user_passes_test(seller_check, login_url=reverse_lazy('sports24h:access_denied'))
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def post(request):
     if not request.method == 'POST':
@@ -125,7 +126,20 @@ def delete_post(request, post_id):
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))  # TODO permitir apenas seller ter acesso a esta view
+def client_check(user):
+    return Client.objects.filter(user=user).exists()
+
+
+def admin_check(user):
+    return user.is_superuser or user.is_staff
+
+
+def access_denied(request):
+    return render(request, 'sports24h/accessdenied.html')
+
+
+@user_passes_test(seller_check, login_url=reverse_lazy('sports24h:access_denied'))
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
 def product(request):
     if not request.method == 'POST':
         forum_list = Forum.objects.order_by('-name')
@@ -156,7 +170,7 @@ def product(request):
 @login_required(login_url=reverse_lazy('sports24h:login_user'))    # TODO permitir apenas seller ter acesso a esta view
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    if product.owner.user == request.user:
+    if product.owner.user == request.use:
         product.delete()
     return HttpResponseRedirect(reverse('sports24h:index'))
 

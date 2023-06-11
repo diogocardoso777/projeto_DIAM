@@ -45,6 +45,9 @@ urlpatterns = [
 
     path("remove_from_cart/<int:product_id>", views.remove_from_cart, name="remove_from_cart"),
 
+    # seller products
+    path('seller_products', views.seller_products, name='seller_products'),
+
     #admin views
     #path("create_country", views., name="create_product"),
 
