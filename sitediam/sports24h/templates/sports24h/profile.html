@@ -9,29 +9,39 @@
 {% block content %}
 
 <div class="profile">
-    <p> Username : {{request.user.username}} </p>
-    <p> E-mail : {{request.user.email}} </p>
-    <p> Data de registo : {{request.user.date_joined}} </p>
-    <p> Curso : {{ request.session.curso }}</p>
+    <p>Username: {{ request.user.username }}</p>
+    <p>Email: {{ request.user.email }}</p>
+    <p>Date of Registration: {{ request.user.date_joined }}</p>
+    <p>Number Of Followers: {{ nr_followers }}</p>
     <img src="{{ request.session.photo }}" alt="Profile Photo" class="dropdown-trigger">
 
     <div class="side-by-side">
-        {% if request.user.country.name %}
-        <p>País :   {{request.user.country.name}}</p>
-        <form method="post"  action="{% url 'sports24h:set_country' %}">
+        {% if c.country.name %}
+        <!-- Display the current country -->
+        <p>Country: {{ c.country.name }}</p>
+        <form method="post" action="{% url 'sports24h:set_country' %}">
             {% csrf_token %}
-            <button type="button" class= "addToProfile" onclick="showInputCountry()">Mudar Pais</button>
-            <div class="country-input" style="display:none">
-                <input type="text" name="country">
+            <button type="button" class="addToProfile" onclick="showInputCountry()">Change Country</button>
+            <div class="country-input" style="display: none;">
+                <select name="country">
+                    {% for country in countries %}
+                    <option value="{{ country.name }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
                 <button type="submit">Save</button>
             </div>
         </form>
         {% else %}
-        <form method="post"  action="{% url 'sports24h:set_country' %}">
+        <!-- No country selected -->
+        <form method="post" action="{% url 'sports24h:set_country' %}">
             {% csrf_token %}
-            <button type="button" class= "addToProfile" onclick="showInputCountry()">Adicionar Pais</button>
-            <div class="country-input" style="display:none">
-                <input type="text" name="country">
+            <button type="button" class="addToProfile" onclick="showInputCountry()">Add Country</button>
+            <div class="country-input" style="display: none;">
+                <select name="country">
+                    {% for country in countries %}
+                    <option value="{{ country.name }}">{{ country.name }}</option>
+                    {% endfor %}
+                </select>
                 <button type="submit">Save</button>
             </div>
         </form>
@@ -128,11 +138,6 @@
 </script>
 
 
-        <script>
-            function showInputFavoriteSport() {
-                document.getElementsByClassName("favorite_sport-input")[0].style.display = "block";
-            }
-        </script>
     </div>
     <p><strong>{{ set_profile_setting }}</strong></p>
 

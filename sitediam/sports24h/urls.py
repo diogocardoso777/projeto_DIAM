@@ -19,7 +19,15 @@ urlpatterns = [
 
     path("forums", views.forums_index, name="forums_index"),
 
+    path("buy_products", views.buy_products, name="buy_products"),
+
+    path("bough_products", views.bough_products, name="bough_products"),
+
+    path('add_review/<int:product_id>/', views.add_review, name='add_review'),
+
     path("follow_forum", views.follow_forum, name="follow_forum"),
+
+    path("unfollow_forum", views.unfollow_forum, name="unfollow_forum"),
 
     # create forum
     path("create_forum", views.forum, name="create_forum"),
@@ -96,6 +104,8 @@ urlpatterns = [
     path('about/', views.about_index, name='about_index'),
 
     path('search_users', views.search_users, name='search_users'),
+
+    path('other_user_profile/<int:user_id>/', views.other_user_profile, name='other_user_profile'),
 
     path('follow_user', views.follow_user, name='follow_user'),
 

@@ -37,7 +37,10 @@
                         <span id="total-amount"></span>
                 </div>
                 <div class="checkout">
-                    <a href="#">Proceed to Checkout</a>
+                    <form id="modal_send_message" action="{% url 'sports24h:buy_products' %}" method="post">
+            {% csrf_token %}
+                <input type="submit" value="Buy">
+                </form>
                 </div>
             {% else %}
                 <p class="empty-cart">Your cart is empty.</p>

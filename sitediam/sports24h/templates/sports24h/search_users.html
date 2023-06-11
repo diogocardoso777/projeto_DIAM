@@ -26,15 +26,16 @@
     </form>
     <div class="search-results">
         {% for user in users %}
-        <form method="POST" action="{% url 'sports24h:follow_user' %}">
+<form method="POST" action="{% url 'sports24h:follow_user' %}">
             {% csrf_token %}
             <div class="search-result">
               <input type="hidden" name="user_id" value="{{ user.id }}">
+                <a href="{% url 'sports24h:other_user_profile' user_id=user.id %}" class="username-anchor">
               <p>{{ user.username }}
                   <button type="submit">Follow</button>
-              </p>
+</p></a>
             </div>
-        </form>
+</form>
         {% endfor %}
     </div>
     <h3>Followed users</h3>
@@ -45,9 +46,10 @@
             {% csrf_token %}
             <div class="search-result">
               <input type="hidden" name="user_id" value="{{ user.id }}">
+                <a href="{% url 'sports24h:other_user_profile' user_id=user.id %}" class="username-anchor">
               <p>{{ user.username }}
                   <button type="submit">Unfollow</button>
-              </p>
+              </p></a>
             </div>
         </form>
         {% endfor %}

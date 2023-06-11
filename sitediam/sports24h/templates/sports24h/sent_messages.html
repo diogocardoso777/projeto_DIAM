@@ -1,44 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-     <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            padding-top: 100px;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px; /* Adjust this value to what works best for you */
-        }
-
-        .close {
-            color: #aaaaaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        #modal-message {
-            word-wrap: break-word;
-        }
-    </style>
-
-    <script>
+<style>
+    .modal-content p {
+        width: 400px; /* Adjust based on your font and desired characters per line */
+        word-wrap: break-word;
+    }
+</style>
+</head>
+<body>
+{% extends 'sports24h/index.html' %}
+{% block search_box %}{% endblock %}
+{% block content %}
+{% if error %}
+<p style="color: red;">{{ error }}</p>
+{% endif %}
+<script>
      function displayFormModal() {
         var modal = document.getElementById('formModal');
         var span = document.getElementsByClassName('close')[1]; // The second close button
@@ -74,64 +51,73 @@
             }
         }
     </script>
-</head>
-<body>
-{% extends 'sports24h/index.html' %}
+<button class="button" onclick="displayFormModal()">Send message to another user</button>
+<a href="{% url 'sports24h:send_message_html' %}" class="button">Received Messages</a>
 
-{% block search_box %}{% endblock %}
-
-{% block content %}
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-<button onclick="displayFormModal()">Enviar mensagem para outro utilizador</button>
-<a href="http://127.0.0.1:8000/sports24h/send_message/" class="btn btn-primary">Mensagens Recebidas</a>
-    <h1>Mensagens Enviadas:</h1>
-    {% if messages %}
-      <table style="width:100%; border-collapse: collapse;">
-        <tr>
-          <th style="border: 1px solid black; padding: 5px;">Destinatário</th>
-          <th style="border: 1px solid black; padding: 5px; width: 70%;">Mensagem</th>
-          <th style="border: 1px solid black; padding: 5px; width: 30%;">Data</th>
-        </tr>
-        {% for message in messages.object_list %}
-        <tr>
-            <td style="border: 1px solid black; padding: 5px;">{{ message.recipient.username }}</td>
-            {% if message.content|length > 30 %}
-                <td style="border: 1px solid black; padding: 5px; cursor: pointer;" onclick='displayMessage("{{ message.content }}")'>{{ message.content|truncatechars:30 }}</td>
-            {% else %}
-                <td style="border: 1px solid black; padding: 5px;">{{ message.content }}</td>
-            {% endif %}
-            <td style="border: 1px solid black; padding: 5px;">{{ message.sent_at }}</td>
-        </tr>
+<h1>Sent Messages:</h1>
+{% if messages %}
+  <table class="table">
+    <tr>
+      <th>Receiver</th>
+      <th>Message</th>
+      <th>Date</th>
+    </tr>
+    {% for message in messages.object_list %}
+    <tr>
+        <td>{{ message.recipient.username }}</td>
+        {% if message.content|length > 30 %}
+            <td class="cursor-pointer" onclick='displayMessage("{{ message.content }}")'>{{ message.content|truncatechars:30 }}</td>
+        {% else %}
+            <td>{{ message.content }}</td>
+        {% endif %}
+        <td>{{ message.sent_at }}</td>
+    </tr>
     {% endfor %}
+  </table>
 
-      </table>
-
-      <div class="pagination">
-        <span class="step-links">
-            {% if messages.has_previous %}
-                <a href="?page={{ messages.previous_page_number }}">Anterior</a>
-            {% endif %}
-            <span class="current">
-                Página {{ messages.number }} de {{ messages.paginator.num_pages }}.
-            </span>
-            {% if messages.has_next %}
-                <a href="?page={{ messages.next_page_number }}">Próximo</a>
-            {% endif %}
+  <div class="pagination">
+    <span class="step-links">
+        {% if messages.has_previous %}
+            <a href="?page={{ messages.previous_page_number }}">Previous</a>
+        {% endif %}
+        <span class="current">
+            Page {{ messages.number }} of {{ messages.paginator.num_pages }}.
         </span>
-      </div>
-    {% else %}
-      <p>Não há mensagens para exibir.</p>
-    {% endif %}
+        {% if messages.has_next %}
+            <a href="?page={{ messages.next_page_number }}">Next</a>
+        {% endif %}
+    </span>
+  </div>
+{% else %}
+  <p>No messages to display.</p>
+{% endif %}
 
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <p id="modal-message"></p>
-        </div>
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modal-message"></p>
     </div>
-{% endblock %}
+</div>
 
+<div id="formModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="modal_send_message" action="{% url 'sports24h:send_message_submit' %}" method="post">
+            {% csrf_token %}
+            <h1 class="form-title">Send message to another user:</h1>
+            <label class="form-label">Recipient:</label>
+            <input type="text" name="
+recipient" class="form-input" value="">
+    <label class="form-label">Message:</label>
+    <textarea name="message" class="form-textarea" rows="4" cols="50"></textarea>
+    <input type="submit" value="Send Message" class="form-submit">
+</form>
+
+
+
+    </div>
+</div>
+
+{% endblock %}
 </body>
 </html>

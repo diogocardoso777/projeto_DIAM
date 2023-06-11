@@ -1,4 +1,4 @@
-{% extends "sports24h/index.html" %}
+{% extends 'sports24h/index.html' %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,11 +9,14 @@
 </head>
 <body>
 {% block content %}
+
 <main>
     <section>
+        {% if request.user.is_superuser %}
         <div class="create_forum">
             <a href="{% url 'sports24h:create_forum' %}">Create a new Forum</a>
         </div>
+        {% endif %}
     </section>
     <section>
         <h2>Forums</h2>
@@ -37,6 +40,11 @@
             <h3>{{ forum.name }}</h3>
             <h4>{{ forum.genre }}</h4>
             <p><strong>Forum followed</strong></p>
+            <form method="POST" action="{% url 'sports24h:unfollow_forum' %}">
+                {% csrf_token %}
+                <input type="hidden" name="forum_id" value="{{ forum.id }}">
+                <div><button class="unfollow_forum" type="submit">Unfollow Forum</button></div>
+            </form>
         </div>
         {% endfor %}
     </section>

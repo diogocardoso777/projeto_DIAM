@@ -34,6 +34,7 @@
             background-color: #f1f1f1;
         }
     </style>
+
 </head>
 <body>
 	{% block header %}
@@ -42,15 +43,23 @@
 			<a href="{% url 'sports24h:index' %}" class="a_none"><div>
 		    	<h1>Sports24h</h1>
 			</div></a>
-			{% block search_box %}
-   		 <input type="text" class="main_search" placeholder="Search..">
-			{% endblock %}
 
         <div class="user-info">
             <div class="dropdown">
+				{% block shopping_cart %}
+				{% if request.session.user_type == 'client' %}
+				<a href="{% url 'sports24h:bough_products' %}">
+  					<img class="shopping_cart" src="{% static 'media/sold_products.jpg' %}" alt="Bought Products">
+				</a>
 				<a href="{% url 'sports24h:shopping_cart' %}">
   					<img class="shopping_cart" src="{% static 'media/shopping-cart.png' %}" alt="Shopping Cart">
 				</a>
+				{% elif request.session.user_type == 'seller' %}
+				<a href="{% url 'sports24h:seller_products' %}">
+  					<img class="seller_products" src="{% static 'media/sold_products.jpg' %}" alt="Sold Products">
+				</a>
+				{% endif %}
+				{% endblock %}
 				{% if request.session.photo %}
 				<img style="border-radius: 50%" src="{{ request.session.photo|default:'#' }}" alt="Profile Photo" class="dropdown-trigger">
 				{% else %}
@@ -100,17 +109,84 @@
             {% endif %}
         </ul>
     </nav>
+
 </header>
 {% endblock %}
 
 	{% block content %}
+	<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkbox = document.querySelector('#show-posts-checkbox');
+        const followedForumsPostsSection = document.querySelector('#followed-forums-posts');
+
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                followedForumsPostsSection.style.display = 'block';
+            } else {
+                followedForumsPostsSection.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 	<main>
+		{% if request.session.user_type == 'seller' or request.user.is_superuser %}
 		<section>
 			<div class="create_post">
 				<a href="{% url 'sports24h:create_post' %}">Create new Post</a>
 				<a href="{% url 'sports24h:create_product' %}">Create new Product</a>
 			</div>
 		</section>
+		{% endif %}
+		<section>
+
+            <div class="checkbox-container">
+    <input type="checkbox" id="show-posts-checkbox">
+    <label for="show-posts-checkbox">Show Post From Followed forums</label>
+</div>
+
+            <div id="followed-forums-posts" style="display: none;">
+                <h2>Followed Forums Posts</h2>
+                {% for post in followed_forums_post %}
+                <div class="post">
+                    <a href="{% url 'sports24h:post_detail' post_id=post.id %}">
+                        <h3>{{ post.title }} by {{ post.owner.user.username }}</h3>
+                        <p>{{ post.text }}</p>
+                    </a>
+                    <div class="options">
+                        <div class="add-comment">
+                <button type="button" class="button-add-comment-{{ post.id }}" onclick="toggleCommentForm('{{ post.id }}')">Comment</button>
+            </div>
+            <form method="post" action="{% url 'sports24h:add_comment' %}">
+                {% csrf_token %}
+                <div class="comment-form" id="comment-form-{{ post.id }}">
+                    <input type="text" name="comment_text" placeholder="Enter your comment">
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <button type="submit">Add Comment</button>
+                </div>
+            </form>
+
+<script>
+    function toggleCommentForm(postId) {
+        const commentForm = document.getElementById("comment-form-" + postId);
+        const commentButton = document.getElementById("button-add-comment-" + postId);
+
+        commentForm.style.display = "block";
+        commentButton.style.display = "none";
+    }
+</script>
+                        <a href="{% url 'sports24h:like' post_id=post.id %}">
+                            {% if post in liked_posts %}
+                            Dislike {{ post.likes_count }}
+                            {% else %}
+                            Like {{ post.likes_count }}
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
 		<section>
     <h2>Latest Posts</h2>
     {% for post in post_list %}

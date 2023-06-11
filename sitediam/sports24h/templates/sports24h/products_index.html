@@ -75,9 +75,11 @@
     {% block content %}
     <main>
         <section>
+            {% if is_seller or request.user.is_superuser %}
             <div class="create_post">
                 <a href="{% url 'sports24h:create_product' %}">Create new Product</a>
             </div>
+            {% endif %}
         </section>
         <section>
             <h2>Featured Products</h2>

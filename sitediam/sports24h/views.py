@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
-from django.db.models import Subquery
+from django.db.models import Subquery, Avg, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -16,12 +16,17 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
 from .models import Post, Forum, Client, Seller, Country, Team, Sport
 from .serializers import PostSerializer, CommentSerializer, UserSerializer, OwnerSerializer
 
 from django.contrib.auth import get_user_model
+
+
+def seller_check(user):
+    return Seller.objects.filter(user=user).exists()
+
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def index(request):
@@ -71,7 +76,7 @@ def index(request):
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
-def posts_index(request):         # TODO mostrar apenas artigos ativos
+def posts_index(request):
     post_list = Post.objects.order_by('-created_at')
     liked_posts = Post.objects.filter(likes__user=request.user)
     product_list = Product.objects.order_by('-created_at')
@@ -87,7 +92,7 @@ def posts_index(request):         # TODO mostrar apenas artigos ativos
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
-def products_index(request):         # TODO mostrar apenas artigos ativos
+def products_index(request):
     product_list = Product.objects.order_by('-created_at')
     is_seller = Seller.objects.filter(user=request.user).exists()
     context = {
@@ -118,7 +123,7 @@ def post(request):
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))    # TODO permitir apenas seller ter acesso a esta view
+@login_required(login_url=reverse_lazy('sports24h:login_user'))  # TODO permitir apenas seller ter acesso a esta view
 def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if post.owner.user == request.user:
@@ -167,7 +172,8 @@ def product(request):
         return render(request, 'sports24h/product.html', context)
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))    # TODO permitir apenas seller ter acesso a esta view
+@user_passes_test(seller_check)
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     if product.owner.user == request.use:
@@ -351,6 +357,7 @@ def team(request):
         return render(request, 'sports24h/create_team.html', context)
 
 
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
 def forums_index(request):
     user_followed_forums = request.user.followsforum_set.all().values_list('forum__id', flat=True)
     forum_list = Forum.objects.exclude(id__in=user_followed_forums).order_by('-name')
@@ -362,24 +369,27 @@ def forums_index(request):
     return render(request, 'sports24h/forums_index.html', context)
 
 
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
 def follow_forum(request):
     if not request.method == 'POST':
         return forums_index(request)
 
     forum_id = request.POST.get('forum_id')
     forum = get_object_or_404(Forum, pk=forum_id)
-    try:
-        follow = FollowsForum.objects.create(user=request.user, forum=forum)
-    except IntegrityError:
-        context = {
-            'message': "You are already following the forum " + forum.name,
-        }
-    else:
-        context = {
-            'message': "You followed the forum " + forum.name,
-        }
+    follow = FollowsForum.objects.create(user=request.user, forum=forum)
+    return forums_index(request)
 
-    return render(request, 'sports24h/forums_index.html', context)
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def unfollow_forum(request):
+    if not request.method == 'POST':
+        return forums_index(request)
+
+    forum_id = request.POST.get('forum_id')
+    forum = get_object_or_404(Forum, pk=forum_id)
+    follow = FollowsForum.objects.get(user=request.user, forum=forum)
+    follow.delete()
+    return forums_index(request)
 
 
 def forum(request):
@@ -542,16 +552,16 @@ def delete_account(request):
 def set_country(request):
     if request.method == 'POST':
         country = request.POST.get('country')
-        c = Client.objects.get(user=request.user)
+        if hasattr(request.user, 'client'):
+            c = Client.objects.get(user=request.user)
+        elif hasattr(request.user, 'seller'):
+            c = Seller.objects.get(user=request.user)
         if country:
             country, created = Country.objects.get_or_create(name=country)
             c.country = country
             c.save()
-            request.user = c
-            return render(request, 'sports24h/profile.html',
-                          {'set_profile_setting': "Profile changed successfully"})
-    return render(request, 'sports24h/profile.html',
-                  {'set_profile_setting': "Error trying to change the profile"})
+            return redirect('sports24h:profile')
+    return redirect('sports24h:profile')
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
@@ -559,7 +569,13 @@ def set_favoriteTeam(request):
     if request.method == 'POST':
         teamCountry = request.POST.get('teamCountry')
         teamName = request.POST.get('teamName')
-        c = Client.objects.get(user=request.user)
+        if hasattr(request.user, 'client'):
+            c = Client.objects.get(user=request.user)
+        elif hasattr(request.user, 'seller'):
+            c = Seller.objects.get(user=request.user)
+        else:
+            return render(request, 'sports24h/profile.html',
+                          {'set_profile_setting': "Error trying to change the profile"})
         if teamCountry and teamName:
             country, created = Country.objects.get_or_create(name=teamCountry)
             if created:
@@ -569,19 +585,21 @@ def set_favoriteTeam(request):
                 team.save()
             c.favorite_team = team
             c.save()
-            request.user = c
-            return render(request, 'sports24h/profile.html',
-                          {'set_profile_setting': "Profile changed successfully"})
+            return redirect('sports24h:profile')
 
-    return render(request, 'sports24h/profile.html',
-                  {'set_profile_setting': "Error trying to change the profile"})
+    return redirect('sports24h:profile')
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def set_favoriteSport(request):
     if request.method == 'POST':
         sportName = request.POST.get('sportName')
-        c = Client.objects.get(user=request.user)
+        if hasattr(request.user, 'client'):
+            c = Client.objects.get(user=request.user)
+        elif hasattr(request.user, 'seller'):
+            c = Seller.objects.get(user=request.user)
+        else:
+            return redirect('sports24h:profile')
         if sportName:
             sport, created = Sport.objects.get_or_create(name=sportName)
             if created:
@@ -589,11 +607,9 @@ def set_favoriteSport(request):
             c.favorite_sport = sport
             c.save()
             request.user = c
-            return render(request, 'sports24h/profile.html',
-                          {'set_profile_setting': "Profile changed successfully"})
+            return redirect('sports24h:profile')
 
-    return render(request, 'sports24h/profile.html',
-                  {'set_profile_setting': "Error trying to change the profile"})
+    return redirect('sports24h:profile')
 
 
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
@@ -626,7 +642,6 @@ def upload_photo(request):
     return render(request, 'sports24h/profile.html', context)
 
 
-
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def reset_photo(request):
     user = request.user
@@ -641,6 +656,7 @@ def reset_photo(request):
                   {'uploaded_file_status': "Photo removed successfully"})
 
 
+@user_passes_test(client_check)
 @login_required(login_url=reverse_lazy('sports24h:login_user'))
 def shopping_cart(request):
     if request.method != "POST":
@@ -657,7 +673,74 @@ def shopping_cart(request):
         return render(request, 'sports24h/shopping_cart.html', context)
 
 
-@login_required(login_url=reverse_lazy('sports24h:login_user'))     # TODO fazer isto acesssivel apenas a users com @client
+@user_passes_test(client_check)
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def buy_products(request):
+    if request.method == "POST":
+        client = request.user.client
+        shopping_cart = ShoppingCart.objects.get(client=client)
+        products = shopping_cart.product_list.all()
+        bought_products, _ = BoughtProducts.objects.get_or_create(client=client)
+        bought_products.product_list.add(*products)
+        shopping_cart.product_list.clear()
+        return redirect('sports24h:bough_products')
+
+
+@user_passes_test(client_check)
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def add_review(request, product_id):
+    rating = request.POST.get('rating_value')
+    if not rating:
+        return redirect('sports24h:bough_products')
+    product = Product.objects.get(id=product_id)
+    client = request.user.client
+    review = Review.objects.create(
+        client=client,
+        product=product,
+        rating=rating,
+    )
+    review.save()
+    return redirect('sports24h:bough_products')
+
+
+@user_passes_test(client_check)
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def bough_products(request):
+    if request.method != "POST":
+        client = request.user.client
+        bought_products = BoughtProducts.objects.filter(client=client)
+
+        if bought_products.exists():
+            products = bought_products.first().product_list.all()
+            product_ids = list(products.values_list('id', flat=True))
+            reviewed_products = Product.objects.filter(review__client=client, id__in=product_ids).distinct()
+            unreviewed_products = Product.objects.filter(
+                ~Q(review__client=client),
+                id__in=product_ids
+            ).distinct()
+        else:
+            reviewed_products = Product.objects.none()
+            unreviewed_products = Product.objects.none()
+
+        context = {
+            'reviewed_products': reviewed_products,
+            'unreviewed_products': unreviewed_products,
+        }
+        return render(request, 'sports24h/bough_products.html', context)
+
+
+@login_required(login_url=reverse_lazy('sports24h:login_user'))
+def seller_products(request):
+    sp_items = Product.objects.filter(owner__user=request.user)
+
+    context = {
+        'sp_items': sp_items,
+    }
+    return render(request, 'sports24h/seller_products.html', context)
+
+
+@user_passes_test(client_check)
+@login_required(login_url=reverse_lazy('sports24h:login_user'))  # TODO fazer isto acesssivel apenas a users com @client
 def add_to_cart(request, product_id):
     if not hasattr(request.user, 'client'):
         return HttpResponseRedirect(reverse('sports24h:index'))
@@ -674,6 +757,7 @@ def add_to_cart(request, product_id):
     return HttpResponseRedirect(reverse('sports24h:index'))
 
 
+@user_passes_test(client_check)
 def remove_from_cart(request, product_id):
     client = Client.objects.get(user=request.user)
     shopping_cart = ShoppingCart.objects.get(client=client)
@@ -738,7 +822,8 @@ def send_message_submit(request):
     return render(request, 'sports24h/send_message.html')
 
 
-def like(request, post_id):          # TODO restringir a instancias de clientes apenas
+@user_passes_test(client_check)
+def like(request, post_id):
     post = Post.objects.get(pk=post_id)
     try:
         like = Likes.objects.get(user=request.user, post=post)
